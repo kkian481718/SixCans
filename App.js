@@ -1,7 +1,11 @@
 import React from 'react';
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import { SwipeListView } from 'react-native-swipe-list-view';
+
 import {
   View,
   StyleSheet,
@@ -15,17 +19,37 @@ import {
   TextInput,
 } from 'react-native';
 
+/*
+// List Viewer
+this.state.listViewData = Array(20)
+    .fill("")
+    .map((_, i) => ({ key: `${i}`, text: `item #${i}` }));
+*/
+
+// Store Varibles in your Phone
+import AsyncStorage from "@react-native-async-storage/async-storage";
+const saveData = (Datakey ,value) => {
+  try {
+      AsyncStorage.setItem(Datakey, value);
+  } catch (e) {
+      console.log("error", e);
+  }
+};
+
 
 // [Variables Setting]
-let Money_leftTotal = 10000;
+let Money_leftTotal = 0;
+
+if(AsyncStorage.getItem('S_Total')._U == 0) Money_leftTotal = 0;
+else Money_leftTotal = AsyncStorage.getItem('S_Total');
 
 let Money_NowList = [
-  1491,
-  200,
-  3200,
-  400,
-  500,
-  600,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 ]
 
 let proportionList = [
@@ -38,123 +62,6 @@ let proportionList = [
   10, // 給予 10%
 ]
 
-let goalList = [
-  Money_leftTotal * proportionList[0] * 0.01, // 投資
-  Money_leftTotal * proportionList[1] * 0.01, // 學習
-  Money_leftTotal * proportionList[2] * 0.01, // 生活
-  Money_leftTotal * proportionList[3] * 0.01, // 玩樂
-  Money_leftTotal * proportionList[4] * 0.01, // 長線
-  Money_leftTotal * proportionList[5] * 0.01, // 給予
-]
-
-let calculateResultList = [
-  {
-    "progress": (Money_NowList[0] / goalList[0]) * 100,
-    "howMuchToGoal": goalList[0] - Money_NowList[0],
-  },
-  {
-    "progress": (Money_NowList[1] / goalList[1]) * 100,
-    "howMuchToGoal": goalList[1] - Money_NowList[1],
-  },
-  {
-    "progress": (Money_NowList[2] / goalList[2]) * 100,
-    "howMuchToGoal": goalList[2] - Money_NowList[2],
-  },
-  {
-    "progress": (Money_NowList[3] / goalList[3]) * 100,
-    "howMuchToGoal": goalList[3] - Money_NowList[3],
-  },
-  {
-    "progress": (Money_NowList[4] / goalList[4]) * 100,
-    "howMuchToGoal": goalList[4] - Money_NowList[4],
-  },
-  {
-    "progress": (Money_NowList[5] / goalList[5]) * 100,
-    "howMuchToGoal": goalList[5] - Money_NowList[5],
-  },
-]
-
-
-// [Styling]
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    flex: 1,
-    paddingTop: StatusBar.currentHeight,
-  },
-  scrollView: {
-    paddingTop: 10,
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-
-  // Boxes
-  box_top: {
-    marginBottom: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 150,
-    width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-    borderRadius: 15,
-  },
-  box_progressInfo: {
-    paddingBottom: 25,
-  },
-  box_title: {
-    marginLeft: 10,
-    marginRight: 10,
-    paddingBottom: 10,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-  },
-  box_subTitle: {
-    marginLeft: 10,
-    marginRight: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    maxWidth: '100%',
-    alignItems: 'flex-end',
-  },
-  box_button: {
-    marginBottom: 10,
-    marginLeft: 10,
-    marginRight: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    maxHeight: 50,
-    backgroundColor: '#00000000',
-  },
-
-  // Labels
-  label_leftMoney: {
-    color: '#28DBB0',
-    fontWeight: 'bold',
-    fontSize: 35,
-  },
-  label_title: {
-    color: 'black',
-    fontWeight: 'bold',
-    fontSize: 18,
-    marginRight: 10,
-    marginEnd: 10,
-  },
-  label_goal: {
-    color: '#BABABA',
-    fontSize: 14,
-  },
-  label_now: {
-    color: '#BABABA',
-    fontSize: 14,
-  },
-  label_howMuchToGoal: {
-    color: '#28DBB0',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-});
 
 
 // [Pages Navigator]
@@ -172,11 +79,55 @@ const MyStack = () => {
 };
 
 
+
 // [Home Screen]
 const HomeScreen = ({ navigation })  => {
 
+  console.log(AsyncStorage.getItem('S_Total')._U);
+
   // ProgressBar Width Setting
   const barWidth = Dimensions.get('screen').width - 30;
+
+  let goalList = [
+    Math.round(Money_leftTotal * proportionList[0] * 0.01), // 投資
+    Math.round(Money_leftTotal * proportionList[1] * 0.01), // 學習
+    Math.round(Money_leftTotal * proportionList[2] * 0.01), // 生活
+    Math.round(Money_leftTotal * proportionList[3] * 0.01), // 玩樂
+    Math.round(Money_leftTotal * proportionList[4] * 0.01), // 長線
+    Math.round(Money_leftTotal * proportionList[5] * 0.01), // 給予
+  ]
+  
+  let calculateResultList = [
+    {
+      "progress": (Money_NowList[0] / goalList[0]) * 100,
+      "howMuchToGoal": Math.round(goalList[0] - Money_NowList[0]),
+    },
+    {
+      "progress": (Money_NowList[1] / goalList[1]) * 100,
+      "howMuchToGoal": Math.round(goalList[1] - Money_NowList[1]),
+    },
+    {
+      "progress": (Money_NowList[2] / goalList[2]) * 100,
+      "howMuchToGoal": Math.round(goalList[2] - Money_NowList[2]),
+    },
+    {
+      "progress": (Money_NowList[3] / goalList[3]) * 100,
+      "howMuchToGoal": Math.round(goalList[3] - Money_NowList[3]),
+    },
+    {
+      "progress": (Money_NowList[4] / goalList[4]) * 100,
+      "howMuchToGoal": Math.round(goalList[4] - Money_NowList[4]),
+    },
+    {
+      "progress": (Money_NowList[5] / goalList[5]) * 100,
+      "howMuchToGoal": Math.round(goalList[5] - Money_NowList[5]),
+    },
+  ]
+
+  // check the Value of ProgressBar
+  for(let i=0; i <= 5; i++) {
+    if(calculateResultList[i].progress > 100 || calculateResultList[i].progress < 0) calculateResultList[i].progress = 100;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -196,10 +147,9 @@ const HomeScreen = ({ navigation })  => {
             </View>
 
             <ProgressBarAnimated
-              useNativeDriver={true} // Add This line
               width={barWidth}
               height={20}
-              borderWidth={0}
+              borderWidth={1}
               borderRadius={50}
               value={calculateResultList[0].progress}
               maxValue={100}
@@ -220,10 +170,9 @@ const HomeScreen = ({ navigation })  => {
             </View>
 
             <ProgressBarAnimated
-              useNativeDriver={true} // Add This line
               width={barWidth}
               height={20}
-              borderWidth={0}
+              borderWidth={1}
               borderRadius={50}
               value={calculateResultList[1].progress}
               maxValue={100}
@@ -244,10 +193,9 @@ const HomeScreen = ({ navigation })  => {
             </View>
 
             <ProgressBarAnimated
-              useNativeDriver={true} // Add This line
               width={barWidth}
               height={20}
-              borderWidth={0}
+              borderWidth={1}
               borderRadius={50}
               value={calculateResultList[2].progress}
               maxValue={100}
@@ -268,10 +216,9 @@ const HomeScreen = ({ navigation })  => {
             </View>
 
             <ProgressBarAnimated
-              useNativeDriver={true} // Add This line
               width={barWidth}
               height={20}
-              borderWidth={0}
+              borderWidth={1}
               borderRadius={50}
               value={calculateResultList[3].progress}
               maxValue={100}
@@ -292,10 +239,9 @@ const HomeScreen = ({ navigation })  => {
             </View>
 
             <ProgressBarAnimated
-              useNativeDriver={true} // Add This line
               width={barWidth}
               height={20}
-              borderWidth={0}
+              borderWidth={1}
               borderRadius={50}
               value={calculateResultList[4].progress}
               maxValue={100}
@@ -316,10 +262,9 @@ const HomeScreen = ({ navigation })  => {
             </View>
 
             <ProgressBarAnimated
-              useNativeDriver={true} // Add This line
               width={barWidth}
               height={20}
-              borderWidth={0}
+              borderWidth={1}
               borderRadius={50}
               value={calculateResultList[5].progress}
               maxValue={100}
@@ -337,23 +282,25 @@ const HomeScreen = ({ navigation })  => {
 
       <View style={styles.box_button}>
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '75%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10}}
+          style={{ backgroundColor: '#F5F5F5', width: '75%', alignItems: "center", borderRadius: 10, marginRight: 10 }}
           onPress={() => navigation.navigate('NewRecord')}
         >
-          <Image source={require('./common/plus.png')} resizeMode='center' style={{ maxHeight: 20 }} />
+          <Image source={require('./common/plus.png')} resizeMode='center' style={{ maxHeight: 20, marginTop: 15, }} />
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '20%', padding: 15, alignItems: "center", borderRadius: 10, }}
+          style={{ backgroundColor: '#F5F5F5', width: 60, alignItems: "center", borderRadius: 10, }}
           onPress={() => navigation.navigate('Setting')}
         >
-          <Image source={require('./common/apps.png')} resizeMode='center' style={{ maxHeight: 20 }} />
+          <Image source={require('./common/list.png')} resizeMode='center' style={{ maxHeight: 20, marginTop: 15, }} />
         </TouchableOpacity>
       </View>
 
     </SafeAreaView>
   );
 };
+
+
 
 // [New Record Screen]
 const NewRecordScreen = ({ navigation }) => {
@@ -367,17 +314,24 @@ const NewRecordScreen = ({ navigation }) => {
 
   // Add a new record
   const _addRecord = () => {
-
     if (recordType != 'unchanged') {
-      if (recordType == '_INCOME') {
-
-        Money_leftTotal = Money_leftTotal + parseInt(number);
-        console.log(Money_leftTotal);
-        
-      }
+      if (recordType == '_INCOME') Money_leftTotal = Money_leftTotal + parseInt(number)
+      else if (recordType == '_INVEST') Money_NowList[0] = Money_NowList[0] + parseInt(number)
+      else if (recordType == '_LEARN') Money_NowList[1] = Money_NowList[1] + parseInt(number)
+      else if (recordType == '_LIFE') Money_NowList[2] = Money_NowList[2] + parseInt(number)
+      else if (recordType == '_FUN') Money_NowList[3] = Money_NowList[3] + parseInt(number)
+      else if (recordType == '_SAVE') Money_NowList[4] = Money_NowList[4] + parseInt(number)
+      else if (recordType == '_GIVE') Money_NowList[5] = Money_NowList[5] + parseInt(number)
     }
 
-    navigation.navigate('Home')
+    saveData('S_Total', parseInt(Money_leftTotal))
+    saveData('S_NowList', Money_NowList)
+
+    navigation.navigate('Home', {}) // 加上 {} ，HomeScreen才會重新整理
+    
+    console.log(Money_NowList)
+    console.log(Money_leftTotal)
+    console.log(AsyncStorage.getItem('S_Total'))
   };
 
 
@@ -443,7 +397,7 @@ const NewRecordScreen = ({ navigation }) => {
       {/* Space */}
 
 
-      <Text>TYPE：{ recordType }</Text>
+      <Text>TYPE: { recordType }</Text>
 
 
       <TextInput
@@ -465,7 +419,7 @@ const NewRecordScreen = ({ navigation }) => {
           style={{ backgroundColor: '#F5F5F5', width: '75%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10}}
           onPress={() => _addRecord()}
         >
-          <Image source={require('./common/check.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 1 }} />
+          <Image source={require('./common/disk.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 1 }} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -480,41 +434,113 @@ const NewRecordScreen = ({ navigation }) => {
   );
 };
 
+
+
 // [Setting Screen]
 const SettingScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <RefreshListView
-            data={this.state.dataList}
-            keyExtractor={this.keyExtractor}
-            renderItem={this.renderCell}
-
-            refreshState={this.state.refreshState}
-            onHeaderRefresh={this.onHeaderRefresh}
-            onFooterRefresh={this.onFooterRefresh}
+      <SwipeListView
+            data={this.state.listViewData}
+            renderItem={ (data, rowMap) => (
+                <View style={styles.rowFront}>
+                    <Text>I am {data.item.text} in a SwipeListView</Text>
+                </View>
+            )}
+            renderHiddenItem={ (data, rowMap) => (
+                <View style={styles.rowBack}>
+                    <Text>Left</Text>
+                    <Text>Right</Text>
+                </View>
+            )}
+            leftOpenValue={75}
+            rightOpenValue={-75}
         />
     </SafeAreaView>
   );
 
-  // 开始下拉刷新
-this.setState({refreshState: RefreshState.HeaderRefreshing})
-
-// 开始上拉翻页
-this.setState({refreshState: RefreshState.FooterRefreshing})
-
-// 加载成功
-this.setState({refreshState: RefreshState.Idle})
-
-// 加载失败
-this.setState({refreshState: RefreshState.Failure})
-
-// 加载全部数据
-this.setState({refreshState: RefreshState.NoMoreData})
-
-// 服务器没有数据
-this.setState({refreshState: RefreshState.EmptyData})
-
 };
+
+
+
+// [Styling]
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    flex: 1,
+    paddingTop: StatusBar.currentHeight,
+  },
+  scrollView: {
+    paddingTop: 10,
+    paddingLeft: 15,
+    paddingRight: 15,
+  },
+
+  // Boxes
+  box_top: {
+    marginBottom: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 150,
+    width: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    borderRadius: 15,
+  },
+  box_progressInfo: {
+    paddingBottom: 25,
+  },
+  box_title: {
+    marginLeft: 10,
+    marginRight: 10,
+    paddingBottom: 10,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  box_subTitle: {
+    marginLeft: 10,
+    marginRight: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    maxWidth: '100%',
+    alignItems: 'flex-end',
+  },
+  box_button: {
+    marginBottom: 10,
+    flexDirection: 'row',
+    maxHeight: 50,
+    //backgroundColor: '#00000000',
+  },
+
+  // Labels
+  label_leftMoney: {
+    color: '#28DBB0',
+    fontWeight: 'bold',
+    fontSize: 35,
+  },
+  label_title: {
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginRight: 10,
+    marginEnd: 10,
+  },
+  label_goal: {
+    color: '#BABABA',
+    fontSize: 14,
+  },
+  label_now: {
+    color: '#BABABA',
+    fontSize: 14,
+  },
+  label_howMuchToGoal: {
+    color: '#28DBB0',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+});
+
 
 export default MyStack;
