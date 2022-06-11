@@ -40,7 +40,7 @@ const saveData = (Datakey ,value) => {
 // [Variables Setting]
 let Money_leftTotal = 0;
 
-if(AsyncStorage.getItem('S_Total')._U == 0) Money_leftTotal = 0;
+if ( AsyncStorage.getItem('S_Total')._U == 0 ) Money_leftTotal = 0;
 else Money_leftTotal = AsyncStorage.getItem('S_Total');
 
 let Money_NowList = [
@@ -83,7 +83,8 @@ const MyStack = () => {
 // [Home Screen]
 const HomeScreen = ({ navigation })  => {
 
-  console.log(AsyncStorage.getItem('S_Total')._U);
+  console.log(AsyncStorage.getItem('S_Total'));
+  console.log(AsyncStorage.getItem('S_NowList'));
 
   // ProgressBar Width Setting
   const barWidth = Dimensions.get('screen').width - 30;
@@ -262,7 +263,7 @@ const HomeScreen = ({ navigation })  => {
             </View>
 
             <ProgressBarAnimated
-              width={barWidth}
+              width={'75%'}
               height={20}
               borderWidth={1}
               borderRadius={50}
@@ -304,6 +305,9 @@ const HomeScreen = ({ navigation })  => {
 
 // [New Record Screen]
 const NewRecordScreen = ({ navigation }) => {
+
+  console.log(AsyncStorage.getItem('S_Total'));
+  console.log(AsyncStorage.getItem('S_NowList'));
 
   // initial state: Recording Type
   let [recordType, setrecordType] = React.useState('unchanged');
