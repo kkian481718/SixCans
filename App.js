@@ -1,11 +1,9 @@
 import React from 'react';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import { SwipeListView } from 'react-native-swipe-list-view';
-
 import {
   View,
   StyleSheet,
@@ -19,6 +17,8 @@ import {
   TextInput,
 } from 'react-native';
 
+
+
 /*
 // List Viewer
 this.state.listViewData = Array(20)
@@ -26,8 +26,9 @@ this.state.listViewData = Array(20)
     .map((_, i) => ({ key: `${i}`, text: `item #${i}` }));
 */
 
+
+
 // Store Varibles in your Phone
-import AsyncStorage from "@react-native-async-storage/async-storage";
 const saveData = (Datakey ,value) => {
   try {
       AsyncStorage.setItem(Datakey, value);
@@ -36,21 +37,25 @@ const saveData = (Datakey ,value) => {
   }
 };
 
+const getData = (Datakey) => {
+  try {
+      AsyncStorage.getItem(Datakey);
+  } catch (e) {
+      console.log("error", e);
+  }
+};
+
+
 
 // [Variables Setting]
 let Money_leftTotal = 0;
+let Money_NowList = [ 0,0,0,0,0,0 ];
 
-if ( AsyncStorage.getItem('S_Total')._U == 0 ) Money_leftTotal = 0;
-else Money_leftTotal = AsyncStorage.getItem('S_Total');
+if ( getData('@Total') == undefined ) Money_leftTotal = 0;
+else Money_leftTotal = parseInt(getData('@Total'));
 
-let Money_NowList = [
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-]
+if ( getData('@NowList') == undefined ) Money_NowList = [ 0,0,0,0,0,0 ];
+else Money_NowList = getData('@NowList').split(',');
 
 let proportionList = [
   // total = 100
@@ -83,8 +88,9 @@ const MyStack = () => {
 // [Home Screen]
 const HomeScreen = ({ navigation })  => {
 
-  console.log(AsyncStorage.getItem('S_Total'));
-  console.log(AsyncStorage.getItem('S_NowList'));
+  console.log(getData('@Total'));
+  console.log(getData('@NowList'));
+
 
   // ProgressBar Width Setting
   const barWidth = Dimensions.get('screen').width - 30;
@@ -125,7 +131,7 @@ const HomeScreen = ({ navigation })  => {
     },
   ]
 
-  // check the Value of ProgressBar
+  // check the Value of ProgressBar < 100
   for(let i=0; i <= 5; i++) {
     if(calculateResultList[i].progress > 100 || calculateResultList[i].progress < 0) calculateResultList[i].progress = 100;
   }
@@ -263,7 +269,7 @@ const HomeScreen = ({ navigation })  => {
             </View>
 
             <ProgressBarAnimated
-              width={'75%'}
+              width={barWidth}
               height={20}
               borderWidth={1}
               borderRadius={50}
@@ -306,8 +312,8 @@ const HomeScreen = ({ navigation })  => {
 // [New Record Screen]
 const NewRecordScreen = ({ navigation }) => {
 
-  console.log(AsyncStorage.getItem('S_Total'));
-  console.log(AsyncStorage.getItem('S_NowList'));
+  console.log(getData('@Total'));
+  console.log(getData('@NowList'));
 
   // initial state: Recording Type
   let [recordType, setrecordType] = React.useState('unchanged');
@@ -326,16 +332,17 @@ const NewRecordScreen = ({ navigation }) => {
       else if (recordType == '_FUN') Money_NowList[3] = Money_NowList[3] + parseInt(number)
       else if (recordType == '_SAVE') Money_NowList[4] = Money_NowList[4] + parseInt(number)
       else if (recordType == '_GIVE') Money_NowList[5] = Money_NowList[5] + parseInt(number)
-    }
 
-    saveData('S_Total', parseInt(Money_leftTotal))
-    saveData('S_NowList', Money_NowList)
+      saveData('@Total', ('' + Money_leftTotal));
+      saveData('@NowList', JSON.stringify(Money_NowList));
+    }
 
     navigation.navigate('Home', {}) // 加上 {} ，HomeScreen才會重新整理
     
-    console.log(Money_NowList)
     console.log(Money_leftTotal)
-    console.log(AsyncStorage.getItem('S_Total'))
+    console.log(Money_NowList)
+    console.log(getData('@Total'))
+    console.log(getData('@NowList'))
   };
 
 
@@ -523,6 +530,7 @@ const styles = StyleSheet.create({
     color: '#28DBB0',
     fontWeight: 'bold',
     fontSize: 35,
+    alignItems: 'center',
   },
   label_title: {
     color: 'black',
