@@ -19,25 +19,87 @@ export default function SectionList() {
     // === GET DATA ===
     let [listData, setListData] = useState([]);
 
+    React.useEffect(() => {
+        getData();
+    }, []);
+
     const getData = async () => {
         try {
             let temp = await AsyncStorage.getItem('@Record');
-            console.log('@Record: ', temp);
 
             if (temp == null) {
                 console.log('== 沒有紀錄 ==');
                 setListData([{ "title": "Oh No 沒有任何紀錄", "data": [{ "key": `0.0`, "text": `：）` }] }]);
             }
-            else listData = temp.split(",");
+            else {
+                listData = temp.split(",");
+
+                console.log('');
+                console.log('--listData: ', listData);
+                console.log('');
+
+                let listWholeSection_temp = [
+                    {
+                        "title": listData[0],
+                        "data": [] // waiting to put 'listData_temp' inside
+                    }
+                ];
+                let listData_temp = [
+                    {
+                        "key": "0.0",
+                        "text": listData[1] + `/ ` + listData[2] + ' NTD.'
+                    }
+                ];
+
+                let [i, j] = [0, 0];
+                for (let count = 3; count <= (listData.length); count = count + 3) {
+
+                    console.log('----count: ', count);
+                    console.log('----i: ', i);
+                    console.log('----j: ', j);
+
+                    if (listData[count] == listData[count - 3]) {
+                        // add !
+                        j++;
+                        listData_temp.push(
+                            {
+                                "key": i + '.' + j,
+                                "text": listData[count + 1] + `/ ` + listData[count + 2] + ' NTD.'
+                            }
+                        );
+                    }
+                    else if (count == (listData.length - 1)) {
+                        listWholeSection_temp[i].data = listData_temp;
+                    }
+                    else {
+                        listWholeSection_temp[i].data = listData_temp;
+
+                        i++;
+                        listWholeSection_temp.push(
+                            {
+                                "title": listData[count],
+                                "data": [] // waiting to put 'listData_temp' inside
+                            }
+                        )
+
+                        // reset, write a new one !
+                        j = 0;
+                        listData_temp = [
+                            {
+                                "key": i + ".0",
+                                "text": listData[count + 1] + `/ ` + listData[count + 2] + ' NTD.'
+                            }
+                        ];
+                    }
+                };
+
+                console.log('--listWholeSection_temp: ', listWholeSection_temp);
+                setListData(listWholeSection_temp);
+            }
         } catch (error) {
             console.log(error);
         }
     };
-
-    React.useEffect(() => {
-        getData();
-        console.log('LIST DATA: \n', listData);
-    }, []);
     // === GET DATA ===
 
 
@@ -122,11 +184,12 @@ const styles = StyleSheet.create({
         color: '#FFF',
     },
     rowFront: {
-        alignItems: 'center',
-        backgroundColor: '#CCC',
+        alignItems: 'flex-start',
+        backgroundColor: '#BABABA',
         justifyContent: 'center',
         height: 50,
         marginBottom: 5,
+        paddingLeft: 15,
     },
     rowBack: {
         alignItems: 'center',

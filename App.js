@@ -18,6 +18,7 @@ import {
   Image,
   Text,
   TextInput,
+  Alert,
 } from 'react-native';
 
 
@@ -25,6 +26,12 @@ import {
 // [Variables Setting]
 let Money_leftTotal = 0;
 let Money_NowList = [0, 0, 0, 0, 0, 0];
+let recordList = `[
+  {
+  "title": "2022.06.12",
+  "data": [{ "key": "20220612.0", "text": "新增收入/ 100 NTD." }, { "key": "20220612.1", "text": "投資/ 90 NTD." }]
+  }§
+]`;
 let proportionList = [
   // total = 100
   15, // 投資 15%
@@ -56,9 +63,13 @@ const MyStack = () => {
 // [Home Screen]
 const HomeScreen = ({ navigation }) => {
 
+  console.log('');
+  console.log('[Open] Home Screen');
+
   const remove = () => {
     AsyncStorage.removeItem('@Total');
     AsyncStorage.removeItem('@NowList');
+    AsyncStorage.removeItem('@Record');
   };
 
 
@@ -311,6 +322,9 @@ const HomeScreen = ({ navigation }) => {
 // [New Record Screen]
 const NewRecordScreen = ({ navigation }) => {
 
+  console.log('');
+  console.log('[Open] New Record Screen');
+
   // initial state: Recording Type
   let [recordType, setrecordType] = useState('unchanged');
   const _onPress = (typeValue) => setrecordType(typeValue);
@@ -318,20 +332,26 @@ const NewRecordScreen = ({ navigation }) => {
   // initial state: Text Inputer
   const [number, onChangeNumber] = useState(null);
 
-  // Add a new record
-  const _addRecord = () => {
-    if (recordType != 'unchanged') {
-      if (recordType == '_INCOME') Money_leftTotal = Money_leftTotal + parseInt(number)
-      else if (recordType == '_INVEST') Money_NowList[0] = Money_NowList[0] + parseInt(number)
-      else if (recordType == '_LEARN') Money_NowList[1] = Money_NowList[1] + parseInt(number)
-      else if (recordType == '_LIFE') Money_NowList[2] = Money_NowList[2] + parseInt(number)
-      else if (recordType == '_FUN') Money_NowList[3] = Money_NowList[3] + parseInt(number)
-      else if (recordType == '_SAVE') Money_NowList[4] = Money_NowList[4] + parseInt(number)
-      else if (recordType == '_GIVE') Money_NowList[5] = Money_NowList[5] + parseInt(number)
+  const _checkInput = () => {
+    if (recordType == 'unchanged') Alert.alert("類別錯誤！", "請選擇其中一種收入／支出類別");
+    else if (number == null) Alert.alert("：）", "您沒有填東西ㄛ：）");
+    else if (number.match(/[^\d]/)) Alert.alert("輸入錯誤！", "只能填入半形數字ㄛ：）\n\n(不能有空格、逗點、全形數字...等)");
 
-      saveData();
-      DEBUGgetData();
-    }
+    else _addRecord();
+  }
+
+  const _addRecord = () => {
+
+    if (recordType == "新增收入") Money_leftTotal = Money_leftTotal + parseInt(number)
+    else if (recordType == "投資") Money_NowList[0] = Money_NowList[0] + parseInt(number)
+    else if (recordType == "學習") Money_NowList[1] = Money_NowList[1] + parseInt(number)
+    else if (recordType == "生活") Money_NowList[2] = Money_NowList[2] + parseInt(number)
+    else if (recordType == "玩樂") Money_NowList[3] = Money_NowList[3] + parseInt(number)
+    else if (recordType == "長線") Money_NowList[4] = Money_NowList[4] + parseInt(number)
+    else if (recordType == "給予") Money_NowList[5] = Money_NowList[5] + parseInt(number)
+
+    saveData();
+    //DEBUGgetData();
 
     console.log('Total: ', Money_leftTotal);
     console.log('NowList: ', Money_NowList);
@@ -339,13 +359,24 @@ const NewRecordScreen = ({ navigation }) => {
     navigation.navigate('Home', {}) // 加上 {} ，HomeScreen才會重新整理
   };
 
-  // storage
   const saveData = async () => {
     try {
       let temp = Money_leftTotal + '';
       let temp2 = Money_NowList.toString();
+      let temp3 = await AsyncStorage.getItem('@Record');
+      
       AsyncStorage.setItem('@Total', temp);
       AsyncStorage.setItem('@NowList', temp2);
+
+      console.log('@Record', temp3);
+      if (temp3 == null) temp3 = [ getCurrentDate(), recordType, number ];
+      else temp3 = temp3.split(",") + ',' + [ getCurrentDate(), recordType, number ];
+
+      temp3 = temp3.toString();
+      AsyncStorage.setItem('@Record', temp3);
+      console.log('Adding... \n', temp3);
+      console.log('@Record (added)\n', temp3);
+
     } catch (error) {
       console.log(error);
     }
@@ -355,13 +386,25 @@ const NewRecordScreen = ({ navigation }) => {
   const DEBUGgetData = async () => {
     try {
       let temp = await AsyncStorage.getItem('@Total');
+      let temp2 = await AsyncStorage.getItem('@NowList');
+
       console.log('@Total', temp);
-      temp = await AsyncStorage.getItem('@NowList');
-      console.log('@NowList', temp);
+      console.log('@NowList', temp2);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const getCurrentDate = () => {
+
+    let date = new Date().getDate();
+    let month = new Date().getMonth() + 1;
+    let year = new Date().getFullYear();
+
+    // Alert.alert(date + '-' + month + '-' + year);
+    // You can turn it in to your desired format
+    return year + '.' + month + '.' + date; //format: yyyy.mm.dd;
+  }
 
 
 
@@ -370,7 +413,7 @@ const NewRecordScreen = ({ navigation }) => {
 
       <TouchableOpacity
         style={{ backgroundColor: '#F5F5F5', width: '90%', padding: 15, alignItems: "center", borderRadius: 10, marginTop: 50, marginBottom: 20 }}
-        onPress={() => _onPress('_INCOME')}
+        onPress={() => _onPress("新增收入")}
       >
         <Text style={{ color: '#28DBB0', fontWeight: 'bold', fontSize: 20 }}>新的收入？</Text>
       </TouchableOpacity>
@@ -378,21 +421,21 @@ const NewRecordScreen = ({ navigation }) => {
       <View style={styles.box_button}>
         <TouchableOpacity
           style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => _onPress('_INVEST')}
+          onPress={() => _onPress("投資")}
         >
           <Text style={{ fontWeight: 'bold' }}>投資</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => _onPress('_LEARN')}
+          onPress={() => _onPress("學習")}
         >
           <Text style={{ fontWeight: 'bold' }}>學習</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10 }}
-          onPress={() => _onPress('_LIFE')}
+          onPress={() => _onPress("生活")}
         >
           <Text style={{ fontWeight: 'bold' }}>生活</Text>
         </TouchableOpacity>
@@ -401,21 +444,21 @@ const NewRecordScreen = ({ navigation }) => {
       <View style={styles.box_button}>
         <TouchableOpacity
           style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => _onPress('_FUN')}
+          onPress={() => _onPress("玩樂")}
         >
           <Text style={{ fontWeight: 'bold' }}>玩樂</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => _onPress('_SAVE')}
+          onPress={() => _onPress("長線")}
         >
           <Text style={{ fontWeight: 'bold' }}>長線</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10 }}
-          onPress={() => _onPress('_GIVE')}
+          onPress={() => _onPress("給予")}
         >
           <Text style={{ fontWeight: 'bold' }}>給予</Text>
         </TouchableOpacity>
@@ -431,11 +474,12 @@ const NewRecordScreen = ({ navigation }) => {
 
 
       <TextInput
-        style={styles.label_leftMoney}
+        style={styles.label_input}
         onChangeText={onChangeNumber}
         value={number}
         placeholder="點這裡輸入金額"
         keyboardType="numeric"
+        required
       />
 
 
@@ -447,7 +491,7 @@ const NewRecordScreen = ({ navigation }) => {
       <View style={styles.box_button}>
         <TouchableOpacity
           style={{ backgroundColor: '#F5F5F5', width: '75%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => _addRecord()}
+          onPress={() => _checkInput()}
         >
           <Image source={require('./common/disk.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 1 }} />
         </TouchableOpacity>
@@ -469,6 +513,9 @@ const NewRecordScreen = ({ navigation }) => {
 // [Setting Screen]
 const SettingScreen = ({ navigation }) => {
 
+  console.log('');
+  console.log('[Open] Setting Screen');
+
   const renderExample = () => {
     const Component = SectionList;
     return <Component />;
@@ -477,15 +524,15 @@ const SettingScreen = ({ navigation }) => {
   return (
     <View style={styles.listContainer}>
 
-      <View style={{alignItems: 'center', marginVertical: 20}}>
-      <TouchableOpacity
-        style={{ backgroundColor: '#F5F5F5', width: '95%', height: 50, padding: 15, alignItems: "center", borderRadius: 10, }}
-        onPress={() => navigation.navigate('Home')}>
-        <Image source={require('./common/cross.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 0 }} />
-      </TouchableOpacity>
+      <View style={{ alignItems: 'center', marginVertical: 20 }}>
+        <TouchableOpacity
+          style={{ backgroundColor: '#F5F5F5', width: '98%', height: 50, padding: 15, alignItems: "center", borderRadius: 10, }}
+          onPress={() => navigation.navigate('Home')}>
+          <Image source={require('./common/cross.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 0 }} />
+        </TouchableOpacity>
       </View>
 
-      {renderExample()} 
+      {renderExample()}
 
     </View>
   );
@@ -548,7 +595,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     flexDirection: 'row',
     maxHeight: 50,
-    //backgroundColor: '#00000000',
   },
 
   // Labels
@@ -577,6 +623,12 @@ const styles = StyleSheet.create({
     color: '#28DBB0',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+  label_input: {
+    color: '#28DBB0',
+    fontWeight: 'bold',
+    fontSize: 35,
+    textAlign: 'center',
   },
 });
 
