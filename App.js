@@ -1,9 +1,12 @@
-import React from 'react';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useState } from 'react';
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
-import { SwipeListView } from 'react-native-swipe-list-view';
+import SectionList from './src/sectionlist';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {
   View,
   StyleSheet,
@@ -19,44 +22,9 @@ import {
 
 
 
-/*
-// List Viewer
-this.state.listViewData = Array(20)
-    .fill("")
-    .map((_, i) => ({ key: `${i}`, text: `item #${i}` }));
-*/
-
-
-
-// Store Varibles in your Phone
-const saveData = (Datakey ,value) => {
-  try {
-      AsyncStorage.setItem(Datakey, value);
-  } catch (e) {
-      console.log("error", e);
-  }
-};
-
-const getData = (Datakey) => {
-  try {
-      AsyncStorage.getItem(Datakey);
-  } catch (e) {
-      console.log("error", e);
-  }
-};
-
-
-
 // [Variables Setting]
 let Money_leftTotal = 0;
-let Money_NowList = [ 0,0,0,0,0,0 ];
-
-if ( getData('@Total') == undefined ) Money_leftTotal = 0;
-else Money_leftTotal = parseInt(getData('@Total'));
-
-if ( getData('@NowList') == undefined ) Money_NowList = [ 0,0,0,0,0,0 ];
-else Money_NowList = getData('@NowList').split(',');
-
+let Money_NowList = [0, 0, 0, 0, 0, 0];
 let proportionList = [
   // total = 100
   15, // 投資 15%
@@ -86,10 +54,41 @@ const MyStack = () => {
 
 
 // [Home Screen]
-const HomeScreen = ({ navigation })  => {
+const HomeScreen = ({ navigation }) => {
 
-  console.log(getData('@Total'));
-  console.log(getData('@NowList'));
+  const remove = () => {
+    AsyncStorage.removeItem('@Total');
+    AsyncStorage.removeItem('@NowList');
+  };
+
+
+  const getData = async () => {
+    try {
+      let Money_leftTotal = await AsyncStorage.getItem('@Total');
+      let Money_NowList = await AsyncStorage.getItem('@NowList');
+
+      console.log('@Total: ', Money_leftTotal);
+      console.log('@NowList: ', Money_NowList);
+
+      if (Money_leftTotal == null) Money_leftTotal = 0;
+      else Money_leftTotal = parseInt(Money_leftTotal);
+      if (Money_NowList == null) Money_NowList = [0, 0, 0, 0, 0, 0];
+      else {
+        Money_NowList = Money_NowList.split(",");
+        for (let i = 0; i <= 5; i++) Money_NowList[i] = parseInt(Money_NowList[i]);
+      }
+
+      console.log('Total: ', Money_leftTotal);
+      console.log('NowList: ', Money_NowList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  React.useEffect(() => {
+    //remove(); // REMEMVER TO TURN THIS OFF !
+    getData();
+  }, []);
 
 
   // ProgressBar Width Setting
@@ -103,7 +102,7 @@ const HomeScreen = ({ navigation })  => {
     Math.round(Money_leftTotal * proportionList[4] * 0.01), // 長線
     Math.round(Money_leftTotal * proportionList[5] * 0.01), // 給予
   ]
-  
+
   let calculateResultList = [
     {
       "progress": (Money_NowList[0] / goalList[0]) * 100,
@@ -132,8 +131,8 @@ const HomeScreen = ({ navigation })  => {
   ]
 
   // check the Value of ProgressBar < 100
-  for(let i=0; i <= 5; i++) {
-    if(calculateResultList[i].progress > 100 || calculateResultList[i].progress < 0) calculateResultList[i].progress = 100;
+  for (let i = 0; i <= 5; i++) {
+    if (calculateResultList[i].progress > 100 || calculateResultList[i].progress < 0) calculateResultList[i].progress = 100;
   }
 
   return (
@@ -143,7 +142,7 @@ const HomeScreen = ({ navigation })  => {
         <View style={styles.scrollViewContainer}>
 
           <View style={styles.box_top}>
-            <Text style={styles.label_leftMoney}>{ Money_leftTotal } NTD.</Text>
+            <Text style={styles.label_leftMoney}>{Money_leftTotal} NTD.</Text>
           </View>
 
           <View style={styles.box_progressInfo}>
@@ -312,15 +311,12 @@ const HomeScreen = ({ navigation })  => {
 // [New Record Screen]
 const NewRecordScreen = ({ navigation }) => {
 
-  console.log(getData('@Total'));
-  console.log(getData('@NowList'));
-
   // initial state: Recording Type
-  let [recordType, setrecordType] = React.useState('unchanged');
+  let [recordType, setrecordType] = useState('unchanged');
   const _onPress = (typeValue) => setrecordType(typeValue);
 
   // initial state: Text Inputer
-  const [number, onChangeNumber] = React.useState(null);
+  const [number, onChangeNumber] = useState(null);
 
   // Add a new record
   const _addRecord = () => {
@@ -333,24 +329,47 @@ const NewRecordScreen = ({ navigation }) => {
       else if (recordType == '_SAVE') Money_NowList[4] = Money_NowList[4] + parseInt(number)
       else if (recordType == '_GIVE') Money_NowList[5] = Money_NowList[5] + parseInt(number)
 
-      saveData('@Total', ('' + Money_leftTotal));
-      saveData('@NowList', JSON.stringify(Money_NowList));
+      saveData();
+      DEBUGgetData();
     }
 
+    console.log('Total: ', Money_leftTotal);
+    console.log('NowList: ', Money_NowList);
+
     navigation.navigate('Home', {}) // 加上 {} ，HomeScreen才會重新整理
-    
-    console.log(Money_leftTotal)
-    console.log(Money_NowList)
-    console.log(getData('@Total'))
-    console.log(getData('@NowList'))
   };
+
+  // storage
+  const saveData = async () => {
+    try {
+      let temp = Money_leftTotal + '';
+      let temp2 = Money_NowList.toString();
+      AsyncStorage.setItem('@Total', temp);
+      AsyncStorage.setItem('@NowList', temp2);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // DEBUG
+  const DEBUGgetData = async () => {
+    try {
+      let temp = await AsyncStorage.getItem('@Total');
+      console.log('@Total', temp);
+      temp = await AsyncStorage.getItem('@NowList');
+      console.log('@NowList', temp);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 
 
   return (
     <SafeAreaView style={styles.container}>
 
       <TouchableOpacity
-        style={{ backgroundColor: '#F5F5F5', width: '90%', padding: 15, alignItems: "center", borderRadius: 10, marginTop: 50, marginBottom:20}}
+        style={{ backgroundColor: '#F5F5F5', width: '90%', padding: 15, alignItems: "center", borderRadius: 10, marginTop: 50, marginBottom: 20 }}
         onPress={() => _onPress('_INCOME')}
       >
         <Text style={{ color: '#28DBB0', fontWeight: 'bold', fontSize: 20 }}>新的收入？</Text>
@@ -358,21 +377,21 @@ const NewRecordScreen = ({ navigation }) => {
 
       <View style={styles.box_button}>
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10}}
+          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
           onPress={() => _onPress('_INVEST')}
         >
           <Text style={{ fontWeight: 'bold' }}>投資</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10}}
+          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
           onPress={() => _onPress('_LEARN')}
         >
           <Text style={{ fontWeight: 'bold' }}>學習</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10}}
+          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10 }}
           onPress={() => _onPress('_LIFE')}
         >
           <Text style={{ fontWeight: 'bold' }}>生活</Text>
@@ -381,21 +400,21 @@ const NewRecordScreen = ({ navigation }) => {
 
       <View style={styles.box_button}>
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10}}
+          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
           onPress={() => _onPress('_FUN')}
         >
           <Text style={{ fontWeight: 'bold' }}>玩樂</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10}}
+          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
           onPress={() => _onPress('_SAVE')}
         >
           <Text style={{ fontWeight: 'bold' }}>長線</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10}}
+          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10 }}
           onPress={() => _onPress('_GIVE')}
         >
           <Text style={{ fontWeight: 'bold' }}>給予</Text>
@@ -408,7 +427,7 @@ const NewRecordScreen = ({ navigation }) => {
       {/* Space */}
 
 
-      <Text>TYPE: { recordType }</Text>
+      <Text>TYPE: {recordType}</Text>
 
 
       <TextInput
@@ -427,7 +446,7 @@ const NewRecordScreen = ({ navigation }) => {
 
       <View style={styles.box_button}>
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '75%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10}}
+          style={{ backgroundColor: '#F5F5F5', width: '75%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
           onPress={() => _addRecord()}
         >
           <Image source={require('./common/disk.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 1 }} />
@@ -450,25 +469,25 @@ const NewRecordScreen = ({ navigation }) => {
 // [Setting Screen]
 const SettingScreen = ({ navigation }) => {
 
+  const renderExample = () => {
+    const Component = SectionList;
+    return <Component />;
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <SwipeListView
-            data={this.state.listViewData}
-            renderItem={ (data, rowMap) => (
-                <View style={styles.rowFront}>
-                    <Text>I am {data.item.text} in a SwipeListView</Text>
-                </View>
-            )}
-            renderHiddenItem={ (data, rowMap) => (
-                <View style={styles.rowBack}>
-                    <Text>Left</Text>
-                    <Text>Right</Text>
-                </View>
-            )}
-            leftOpenValue={75}
-            rightOpenValue={-75}
-        />
-    </SafeAreaView>
+    <View style={styles.listContainer}>
+
+      <View style={{alignItems: 'center', marginVertical: 20}}>
+      <TouchableOpacity
+        style={{ backgroundColor: '#F5F5F5', width: '95%', height: 50, padding: 15, alignItems: "center", borderRadius: 10, }}
+        onPress={() => navigation.navigate('Home')}>
+        <Image source={require('./common/cross.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 0 }} />
+      </TouchableOpacity>
+      </View>
+
+      {renderExample()} 
+
+    </View>
   );
 
 };
@@ -485,6 +504,13 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     paddingTop: 10,
+    paddingLeft: 15,
+    paddingRight: 15,
+  },
+  listContainer: {
+    backgroundColor: '#fff',
+    flex: 1,
+    paddingTop: StatusBar.currentHeight,
     paddingLeft: 15,
     paddingRight: 15,
   },
