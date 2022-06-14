@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import SectionList from './src/sectionlist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import {
   View,
   StyleSheet,
@@ -23,28 +20,8 @@ import {
 
 
 
-// [Variables Setting]
-let Money_leftTotal = 0;
-let Money_NowList = [0, 0, 0, 0, 0, 0];
-let recordList = `[
-  {
-  "title": "2022.06.12",
-  "data": [{ "key": "20220612.0", "text": "新增收入/ 100 NTD." }, { "key": "20220612.1", "text": "投資/ 90 NTD." }]
-  }§
-]`;
-let proportionList = [
-  // total = 100
-  15, // 投資 15%
-  10, // 學習 10%
-  55, // 生活 55%
-  10, // 玩樂 10%
-  10, // 長線 10%
-  10, // 給予 10%
-]
-
-
-
 // [Pages Navigator]
+let REFRESH_HOME = '';
 const Stack = createNativeStackNavigator();
 const MyStack = () => {
   return (
@@ -63,88 +40,133 @@ const MyStack = () => {
 // [Home Screen]
 const HomeScreen = ({ navigation }) => {
 
-  console.log('');
-  console.log('[Open] Home Screen');
+  console.log('\n[Open] Home Screen');
 
-  const remove = () => {
-    AsyncStorage.removeItem('@Total');
-    AsyncStorage.removeItem('@NowList');
-    AsyncStorage.removeItem('@Record');
-  };
+  // Variables Setting
+  const barWidth = Dimensions.get('screen').width - 30;
+  const proportionList = [
+    // total = 100
+    15, // 投資 15%
+    10, // 學習 10%
+    55, // 生活 55%
+    10, // 玩樂 10%
+    10, // 長線 10%
+    10, // 給予 10%
+  ];
 
+  let [leftTotalMoney, set_leftTotalMoney] = useState(0);
+  let [list_nowMoney, set_list_nowMoney] = useState([0, 0, 0, 0, 0, 0]);
+  let [list_progress, set_list_progress] = useState([0, 0, 0, 0, 0, 0]);
+  let [goalList, set_goalList] = useState([0, 0, 0, 0, 0, 0]);
 
   const getData = async () => {
+
+    console.log('--正在拿資料');
+
+    REFRESH_HOME = '0';
+
     try {
-      let Money_leftTotal = await AsyncStorage.getItem('@Total');
-      let Money_NowList = await AsyncStorage.getItem('@NowList');
+      const S_Total = await AsyncStorage.getItem('@Total');
+      const S_NowList = await AsyncStorage.getItem('@NowList');
 
-      console.log('@Total: ', Money_leftTotal);
-      console.log('@NowList: ', Money_NowList);
+      if (S_Total == null) leftTotalMoney = 0;
+      else leftTotalMoney = parseInt(S_Total);
 
-      if (Money_leftTotal == null) Money_leftTotal = 0;
-      else Money_leftTotal = parseInt(Money_leftTotal);
-      if (Money_NowList == null) Money_NowList = [0, 0, 0, 0, 0, 0];
+      if (S_NowList == null) list_nowMoney = [0, 0, 0, 0, 0, 0];
       else {
-        Money_NowList = Money_NowList.split(",");
-        for (let i = 0; i <= 5; i++) Money_NowList[i] = parseInt(Money_NowList[i]);
-      }
+        const list_temp = S_NowList.split(",");
+        for (let i = 0; i <= 5; i++) list_temp[i] = parseInt(list_temp[i]);
+        list_nowMoney = list_temp;
+      };
 
-      console.log('Total: ', Money_leftTotal);
-      console.log('NowList: ', Money_NowList);
+      console.log('@Total: ', S_Total);
+      console.log('@NowList: ', S_NowList);
+      console.log('Total: ', leftTotalMoney);
+      console.log('NowList: ', list_nowMoney);
+
+      checkProgressValue();
+
     } catch (error) {
       console.log(error);
     }
   };
 
+  const checkProgressValue = () => {
+
+    console.log('--正在整理資料');
+
+    goalList = [
+      Math.round(leftTotalMoney * (proportionList[0] * 0.01)), // 投資
+      Math.round(leftTotalMoney * (proportionList[1] * 0.01)), // 學習
+      Math.round(leftTotalMoney * (proportionList[2] * 0.01)), // 生活
+      Math.round(leftTotalMoney * (proportionList[3] * 0.01)), // 玩樂
+      Math.round(leftTotalMoney * (proportionList[4] * 0.01)), // 長線
+      Math.round(leftTotalMoney * (proportionList[5] * 0.01)), // 給予
+    ];
+
+    list_progress = [
+      (list_nowMoney[0] / goalList[0]) * 100,
+      (list_nowMoney[1] / goalList[1]) * 100,
+      (list_nowMoney[2] / goalList[2]) * 100,
+      (list_nowMoney[3] / goalList[3]) * 100,
+      (list_nowMoney[4] / goalList[4]) * 100,
+      (list_nowMoney[5] / goalList[5]) * 100,
+    ];
+
+    // check the Value of ProgressBar < 100
+    for (let i = 0; i <= 5; i++) {
+      if (list_progress[i] > 100 || list_progress[i] < 0) list_progress[i] = 100;
+      else if (isNaN(list_progress[i])) list_progress[i] = 0;
+    }
+
+    console.log('goalList: ', goalList);
+    console.log('list_progress: ', list_progress);
+
+    set_leftTotalMoney(leftTotalMoney);
+    set_list_nowMoney(list_nowMoney);
+    set_list_progress(list_progress);
+    set_goalList(goalList);
+  };
+
+  const checkRemove = () => {
+    Alert.alert(
+      "確定要重置所有紀錄嗎？",
+      "包含預算、進度、記帳紀錄都會被清除。",
+      [
+        {
+          text: "算了不要",
+          onPress: () => Alert.alert("看起來甚麼也沒發生。"),
+          style: "cancel",
+        },
+        {
+          text: "清除！",
+          onPress: Remove,
+          style: "destructive",
+        },
+      ],
+    );
+  };
+
+  const Remove = async () => {
+    await AsyncStorage.removeItem('@Total');
+    await AsyncStorage.removeItem('@NowList');
+    await AsyncStorage.removeItem('@Record');
+
+    console.log('=== 清除中 ===');
+    getData();
+    Alert.alert("資料已成功清除！");
+  };
+
+  // Entering point
   React.useEffect(() => {
-    //remove(); // REMEMVER TO TURN THIS OFF !
     getData();
   }, []);
 
-
-  // ProgressBar Width Setting
-  const barWidth = Dimensions.get('screen').width - 30;
-
-  let goalList = [
-    Math.round(Money_leftTotal * proportionList[0] * 0.01), // 投資
-    Math.round(Money_leftTotal * proportionList[1] * 0.01), // 學習
-    Math.round(Money_leftTotal * proportionList[2] * 0.01), // 生活
-    Math.round(Money_leftTotal * proportionList[3] * 0.01), // 玩樂
-    Math.round(Money_leftTotal * proportionList[4] * 0.01), // 長線
-    Math.round(Money_leftTotal * proportionList[5] * 0.01), // 給予
-  ]
-
-  let calculateResultList = [
-    {
-      "progress": (Money_NowList[0] / goalList[0]) * 100,
-      "howMuchToGoal": Math.round(goalList[0] - Money_NowList[0]),
-    },
-    {
-      "progress": (Money_NowList[1] / goalList[1]) * 100,
-      "howMuchToGoal": Math.round(goalList[1] - Money_NowList[1]),
-    },
-    {
-      "progress": (Money_NowList[2] / goalList[2]) * 100,
-      "howMuchToGoal": Math.round(goalList[2] - Money_NowList[2]),
-    },
-    {
-      "progress": (Money_NowList[3] / goalList[3]) * 100,
-      "howMuchToGoal": Math.round(goalList[3] - Money_NowList[3]),
-    },
-    {
-      "progress": (Money_NowList[4] / goalList[4]) * 100,
-      "howMuchToGoal": Math.round(goalList[4] - Money_NowList[4]),
-    },
-    {
-      "progress": (Money_NowList[5] / goalList[5]) * 100,
-      "howMuchToGoal": Math.round(goalList[5] - Money_NowList[5]),
-    },
-  ]
-
-  // check the Value of ProgressBar < 100
-  for (let i = 0; i <= 5; i++) {
-    if (calculateResultList[i].progress > 100 || calculateResultList[i].progress < 0) calculateResultList[i].progress = 100;
-  }
+  // Re-Open
+  if (REFRESH_HOME == 'DO') {
+    console.log('Re-Freshing');
+    getData();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -152,9 +174,9 @@ const HomeScreen = ({ navigation }) => {
       <ScrollView style={styles.scrollView}>
         <View style={styles.scrollViewContainer}>
 
-          <View style={styles.box_top}>
-            <Text style={styles.label_leftMoney}>{Money_leftTotal} NTD.</Text>
-          </View>
+          <TouchableOpacity style={styles.box_top} onPress={checkRemove}>
+            <Text style={styles.label_leftMoney}>{leftTotalMoney} NTD.</Text>
+          </TouchableOpacity>
 
           <View style={styles.box_progressInfo}>
 
@@ -168,13 +190,13 @@ const HomeScreen = ({ navigation }) => {
               height={20}
               borderWidth={1}
               borderRadius={50}
-              value={calculateResultList[0].progress}
+              value={list_progress[0]}
               maxValue={100}
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Money_NowList[0]} NTD.</Text>
-              <Text style={styles.label_howMuchToGoal}>{calculateResultList[0].howMuchToGoal} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {list_nowMoney[0]} NTD.</Text>
+              <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[0] - list_nowMoney[0])} NTD.</Text>
             </View>
 
           </View>
@@ -191,13 +213,13 @@ const HomeScreen = ({ navigation }) => {
               height={20}
               borderWidth={1}
               borderRadius={50}
-              value={calculateResultList[1].progress}
+              value={list_progress[1]}
               maxValue={100}
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Money_NowList[1]} NTD.</Text>
-              <Text style={styles.label_howMuchToGoal}>{calculateResultList[1].howMuchToGoal} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {list_nowMoney[1]} NTD.</Text>
+              <Text style={styles.label_howMuchToGoal}>{goalList[1] - list_nowMoney[1]} NTD.</Text>
             </View>
 
           </View>
@@ -214,13 +236,13 @@ const HomeScreen = ({ navigation }) => {
               height={20}
               borderWidth={1}
               borderRadius={50}
-              value={calculateResultList[2].progress}
+              value={list_progress[2]}
               maxValue={100}
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Money_NowList[2]} NTD.</Text>
-              <Text style={styles.label_howMuchToGoal}>{calculateResultList[2].howMuchToGoal} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {list_nowMoney[2]} NTD.</Text>
+              <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[2] - list_nowMoney[2])} NTD.</Text>
             </View>
 
           </View>
@@ -237,13 +259,13 @@ const HomeScreen = ({ navigation }) => {
               height={20}
               borderWidth={1}
               borderRadius={50}
-              value={calculateResultList[3].progress}
+              value={list_progress[3]}
               maxValue={100}
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Money_NowList[3]} NTD.</Text>
-              <Text style={styles.label_howMuchToGoal}>{calculateResultList[3].howMuchToGoal} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {list_nowMoney[3]} NTD.</Text>
+              <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[3] - list_nowMoney[3])} NTD.</Text>
             </View>
 
           </View>
@@ -260,13 +282,13 @@ const HomeScreen = ({ navigation }) => {
               height={20}
               borderWidth={1}
               borderRadius={50}
-              value={calculateResultList[4].progress}
+              value={list_progress[4]}
               maxValue={100}
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Money_NowList[4]} NTD.</Text>
-              <Text style={styles.label_howMuchToGoal}>{calculateResultList[4].howMuchToGoal} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {list_nowMoney[4]} NTD.</Text>
+              <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[4] - list_nowMoney[4])} NTD.</Text>
             </View>
 
           </View>
@@ -283,13 +305,13 @@ const HomeScreen = ({ navigation }) => {
               height={20}
               borderWidth={1}
               borderRadius={50}
-              value={calculateResultList[5].progress}
+              value={list_progress[5]}
               maxValue={100}
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Money_NowList[5]} NTD.</Text>
-              <Text style={styles.label_howMuchToGoal}>{calculateResultList[5].howMuchToGoal} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {list_nowMoney[5]} NTD.</Text>
+              <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[5] - list_nowMoney[5])} NTD.</Text>
             </View>
 
           </View>
@@ -300,7 +322,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.box_button}>
         <TouchableOpacity
           style={{ backgroundColor: '#F5F5F5', width: '75%', alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => navigation.navigate('NewRecord')}
+          onPress={() => navigation.navigate('NewRecord', { leftTotalMoney: leftTotalMoney, list_nowMoney: list_nowMoney })}
         >
           <Image source={require('./common/plus.png')} resizeMode='center' style={{ maxHeight: 20, marginTop: 15, }} />
         </TouchableOpacity>
@@ -320,67 +342,35 @@ const HomeScreen = ({ navigation }) => {
 
 
 // [New Record Screen]
-const NewRecordScreen = ({ navigation }) => {
+const NewRecordScreen = ({ route, navigation }) => {
 
-  console.log('');
-  console.log('[Open] New Record Screen');
+  console.log('\n[Open] New Record Screen');
 
-  // initial state: Recording Type
-  let [recordType, setrecordType] = useState('unchanged');
-  const _onPress = (typeValue) => setrecordType(typeValue);
+  // get parms from HomeScreen
+  let { leftTotalMoney, list_nowMoney } = route.params;
+  console.log('@Total: ', leftTotalMoney);
+  console.log('@NowList: ', list_nowMoney);
 
-  // initial state: Text Inputer
+  const [recordType, setrecordType] = useState('unchanged');
   const [number, onChangeNumber] = useState(null);
-
-  const _checkInput = () => {
-    if (recordType == 'unchanged') Alert.alert("類別錯誤！", "請選擇其中一種收入／支出類別");
-    else if (number == null) Alert.alert("：）", "您沒有填東西ㄛ：）");
-    else if (number.match(/[^\d]/)) Alert.alert("輸入錯誤！", "只能填入半形數字ㄛ：）\n\n(不能有空格、逗點、全形數字...等)");
-
-    else _addRecord();
-  }
-
-  const _addRecord = () => {
-
-    if (recordType == "新增收入") Money_leftTotal = Money_leftTotal + parseInt(number)
-    else if (recordType == "投資") Money_NowList[0] = Money_NowList[0] + parseInt(number)
-    else if (recordType == "學習") Money_NowList[1] = Money_NowList[1] + parseInt(number)
-    else if (recordType == "生活") Money_NowList[2] = Money_NowList[2] + parseInt(number)
-    else if (recordType == "玩樂") Money_NowList[3] = Money_NowList[3] + parseInt(number)
-    else if (recordType == "長線") Money_NowList[4] = Money_NowList[4] + parseInt(number)
-    else if (recordType == "給予") Money_NowList[5] = Money_NowList[5] + parseInt(number)
-
-    saveData();
-    //DEBUGgetData();
-
-    console.log('Total: ', Money_leftTotal);
-    console.log('NowList: ', Money_NowList);
-
-    navigation.navigate('Home', {}) // 加上 {} ，HomeScreen才會重新整理
-  };
-
-  const saveData = async () => {
-    try {
-      let temp = Money_leftTotal + '';
-      let temp2 = Money_NowList.toString();
-      let temp3 = await AsyncStorage.getItem('@Record');
-      
-      AsyncStorage.setItem('@Total', temp);
-      AsyncStorage.setItem('@NowList', temp2);
-
-      console.log('@Record', temp3);
-      if (temp3 == null) temp3 = [ getCurrentDate(), recordType, number ];
-      else temp3 = temp3.split(",") + ',' + [ getCurrentDate(), recordType, number ];
-
-      temp3 = temp3.toString();
-      AsyncStorage.setItem('@Record', temp3);
-      console.log('Adding... \n', temp3);
-      console.log('@Record (added)\n', temp3);
-
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  let [btnColor, set_btnColor] = useState([ //背景顏色
+    '#F5F5F5', // 新增收入
+    '#F5F5F5', // 投資
+    '#F5F5F5', // 學習
+    '#F5F5F5', // 生活
+    '#F5F5F5', // 玩樂
+    '#F5F5F5', // 長線
+    '#F5F5F5'  // 給予
+  ]);
+  let [btnTextColor, set_btnTextColor] = useState([ //文字顏色
+    '#28DBB0', // 新增收入
+    'black', // 投資
+    'black', // 學習
+    'black', // 生活
+    'black', // 玩樂
+    'black', // 長線
+    'black'  // 給予
+  ]);
 
   // DEBUG
   const DEBUGgetData = async () => {
@@ -395,6 +385,60 @@ const NewRecordScreen = ({ navigation }) => {
     }
   };
 
+  const _checkInput = () => {
+    if (recordType == 'unchanged') Alert.alert("類別錯誤！", "請選擇其中一種收入／支出類別");
+    else if (number == null) Alert.alert("：）", "您沒有填東西ㄛ：）");
+    else if (number.match(/[^\d]/)) Alert.alert("輸入錯誤！", "只能填入半形數字ㄛ：）\n\n(不能有空格、逗點、全形數字...等)");
+    else _addRecord();
+  };
+
+  const _addRecord = () => {
+    if (recordType == "新增收入") leftTotalMoney = leftTotalMoney + parseInt(number)
+    else if (recordType == "投資") list_nowMoney[0] = list_nowMoney[0] + parseInt(number)
+    else if (recordType == "學習") list_nowMoney[1] = list_nowMoney[1] + parseInt(number)
+    else if (recordType == "生活") list_nowMoney[2] = list_nowMoney[2] + parseInt(number)
+    else if (recordType == "玩樂") list_nowMoney[3] = list_nowMoney[3] + parseInt(number)
+    else if (recordType == "長線") list_nowMoney[4] = list_nowMoney[4] + parseInt(number)
+    else if (recordType == "給予") list_nowMoney[5] = list_nowMoney[5] + parseInt(number)
+
+    saveData();
+    //DEBUGgetData();
+
+    console.log('Total: ', leftTotalMoney);
+    console.log('NowList: ', list_nowMoney);
+  };
+
+  const saveData = async () => {
+    try {
+      let temp = leftTotalMoney + '';
+      let temp2 = list_nowMoney.toString();
+
+      await AsyncStorage.setItem('@Total', temp);
+      await AsyncStorage.setItem('@NowList', temp2);
+
+      let temp3 = await AsyncStorage.getItem('@Record');
+      console.log('@Record', temp3);
+
+      if (temp3 == null) temp3 = [getCurrentDate(), recordType, number];
+      else {
+        temp3 = temp3.split(",");
+
+        temp3.push(getCurrentDate());
+        temp3.push(recordType);
+        temp3.push(number);
+      }
+      temp3 = temp3.toString();
+      AsyncStorage.setItem('@Record', temp3);
+      console.log('@Record (added)\n', temp3);
+
+      REFRESH_HOME = 'DO';
+      navigation.navigate('Home', {})
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const getCurrentDate = () => {
 
     let date = new Date().getDate();
@@ -404,63 +448,98 @@ const NewRecordScreen = ({ navigation }) => {
     // Alert.alert(date + '-' + month + '-' + year);
     // You can turn it in to your desired format
     return year + '.' + month + '.' + date; //format: yyyy.mm.dd;
-  }
+  };
 
+  const _onPress = (Index) => {
 
+    btnColor = [ //背景顏色
+      '#F5F5F5', // 新增收入
+      '#F5F5F5', // 投資
+      '#F5F5F5', // 學習
+      '#F5F5F5', // 生活
+      '#F5F5F5', // 玩樂
+      '#F5F5F5', // 長線
+      '#F5F5F5'  // 給予
+    ];
+
+    btnTextColor = [ //文字顏色
+      '#28DBB0', // 新增收入
+      'black', // 投資
+      'black', // 學習
+      'black', // 生活
+      'black', // 玩樂
+      'black', // 長線
+      'black'  // 給予
+    ];
+
+    btnColor[Index] = '#28DBB0';
+    btnTextColor[Index] = 'white';
+
+    set_btnColor(btnColor);
+    set_btnTextColor(btnTextColor);
+
+    if (Index == 0) setrecordType("新增收入");
+    else if (Index == 1) setrecordType("投資");
+    else if (Index == 2) setrecordType("學習");
+    else if (Index == 3) setrecordType("生活");
+    else if (Index == 4) setrecordType("玩樂");
+    else if (Index == 5) setrecordType("長線");
+    else if (Index == 6) setrecordType("給予");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
 
       <TouchableOpacity
-        style={{ backgroundColor: '#F5F5F5', width: '90%', padding: 15, alignItems: "center", borderRadius: 10, marginTop: 50, marginBottom: 20 }}
-        onPress={() => _onPress("新增收入")}
+        style={{ backgroundColor: btnColor[0], width: '90%', padding: 25, alignItems: "center", borderRadius: 10, marginTop: 50, marginBottom: 20 }}
+        onPress={() => _onPress(0)}
       >
-        <Text style={{ color: '#28DBB0', fontWeight: 'bold', fontSize: 20 }}>新的收入？</Text>
+        <Text style={{ color: btnTextColor[0], fontWeight: 'bold', fontSize: 25 }}>新的收入？</Text>
       </TouchableOpacity>
 
       <View style={styles.box_button}>
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => _onPress("投資")}
+          style={{ backgroundColor: btnColor[1], width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
+          onPress={() => _onPress(1)}
         >
-          <Text style={{ fontWeight: 'bold' }}>投資</Text>
+          <Text style={{ color: btnTextColor[1], fontWeight: 'bold' }}>投資</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => _onPress("學習")}
+          style={{ backgroundColor: btnColor[2], width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
+          onPress={() => _onPress(2)}
         >
-          <Text style={{ fontWeight: 'bold' }}>學習</Text>
+          <Text style={{ color: btnTextColor[2], fontWeight: 'bold' }}>學習</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10 }}
-          onPress={() => _onPress("生活")}
+          style={{ backgroundColor: btnColor[3], width: '30%', padding: 15, alignItems: "center", borderRadius: 10 }}
+          onPress={() => _onPress(3)}
         >
-          <Text style={{ fontWeight: 'bold' }}>生活</Text>
+          <Text style={{ color: btnTextColor[3], fontWeight: 'bold' }}>生活</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.box_button}>
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => _onPress("玩樂")}
+          style={{ backgroundColor: btnColor[4], width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
+          onPress={() => _onPress(4)}
         >
-          <Text style={{ fontWeight: 'bold' }}>玩樂</Text>
+          <Text style={{ color: btnTextColor[4], fontWeight: 'bold' }}>玩樂</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
-          onPress={() => _onPress("長線")}
+          style={{ backgroundColor: btnColor[5], width: '30%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
+          onPress={() => _onPress(5)}
         >
-          <Text style={{ fontWeight: 'bold' }}>長線</Text>
+          <Text style={{ color: btnTextColor[5], fontWeight: 'bold' }}>長線</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '30%', padding: 15, alignItems: "center", borderRadius: 10 }}
-          onPress={() => _onPress("給予")}
+          style={{ backgroundColor: btnColor[6], width: '30%', padding: 15, alignItems: "center", borderRadius: 10 }}
+          onPress={() => _onPress(6)}
         >
-          <Text style={{ fontWeight: 'bold' }}>給予</Text>
+          <Text style={{ color: btnTextColor[6], fontWeight: 'bold' }}>給予</Text>
         </TouchableOpacity>
       </View>
 
@@ -468,9 +547,6 @@ const NewRecordScreen = ({ navigation }) => {
       {/* Space */}
       <View style={{ marginTop: 50 }}></View>
       {/* Space */}
-
-
-      <Text>TYPE: {recordType}</Text>
 
 
       <TextInput
@@ -521,13 +597,18 @@ const SettingScreen = ({ navigation }) => {
     return <Component />;
   };
 
+  const _backToHome = () => {
+    REFRESH_HOME = 'DO';
+    navigation.navigate('Home', {});
+  };
+
   return (
     <View style={styles.listContainer}>
 
       <View style={{ alignItems: 'center', marginVertical: 20 }}>
         <TouchableOpacity
           style={{ backgroundColor: '#F5F5F5', width: '98%', height: 50, padding: 15, alignItems: "center", borderRadius: 10, }}
-          onPress={() => navigation.navigate('Home')}>
+          onPress={() => _backToHome()}>
           <Image source={require('./common/cross.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 0 }} />
         </TouchableOpacity>
       </View>
@@ -567,9 +648,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 150,
+    height: 100,
     width: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    backgroundColor: '#28DBB0',
     borderRadius: 15,
   },
   box_progressInfo: {
@@ -599,7 +680,7 @@ const styles = StyleSheet.create({
 
   // Labels
   label_leftMoney: {
-    color: '#28DBB0',
+    color: 'white',
     fontWeight: 'bold',
     fontSize: 35,
     alignItems: 'center',

@@ -38,7 +38,7 @@ export default function SectionList() {
                 console.log('--listData: ', listData);
                 console.log('');
 
-                let listWholeSection_temp = [
+                let listWholeSection = [
                     {
                         "title": listData[0],
                         "data": [] // waiting to put 'listData_temp' inside
@@ -47,7 +47,8 @@ export default function SectionList() {
                 let listData_temp = [
                     {
                         "key": "0.0",
-                        "text": listData[1] + `/ ` + listData[2] + ' NTD.'
+                        "text": listData[1] + `/ ` + listData[2] + ' NTD.',
+                        "count": 0
                     }
                 ];
 
@@ -64,18 +65,19 @@ export default function SectionList() {
                         listData_temp.push(
                             {
                                 "key": i + '.' + j,
-                                "text": listData[count + 1] + `/ ` + listData[count + 2] + ' NTD.'
+                                "text": listData[count + 1] + `/ ` + listData[count + 2] + ' NTD.',
+                                "count": count
                             }
                         );
                     }
                     else if (count == (listData.length - 1)) {
-                        listWholeSection_temp[i].data = listData_temp;
+                        listWholeSection[i].data = listData_temp;
                     }
                     else {
-                        listWholeSection_temp[i].data = listData_temp;
+                        listWholeSection[i].data = listData_temp;
 
                         i++;
-                        listWholeSection_temp.push(
+                        listWholeSection.push(
                             {
                                 "title": listData[count],
                                 "data": [] // waiting to put 'listData_temp' inside
@@ -87,14 +89,15 @@ export default function SectionList() {
                         listData_temp = [
                             {
                                 "key": i + ".0",
-                                "text": listData[count + 1] + `/ ` + listData[count + 2] + ' NTD.'
+                                "text": listData[count + 1] + `/ ` + listData[count + 2] + ' NTD.',
+                                "count": count
                             }
                         ];
                     }
                 };
 
-                console.log('--listWholeSection_temp: ', listWholeSection_temp);
-                setListData(listWholeSection_temp);
+                console.log('--listWholeSection: ', listWholeSection);
+                setListData(listWholeSection);
             }
         } catch (error) {
             console.log(error);
@@ -111,17 +114,101 @@ export default function SectionList() {
 
     const deleteRow = (rowMap, rowKey) => {
         closeRow(rowMap, rowKey);
+
         const [section] = rowKey.split('.');
         const newData = [...listData];
         const prevIndex = listData[section].data.findIndex(
             item => item.key === rowKey
         );
+
+        // update storage value
+        const deleteCount = newData[section].data[prevIndex].count;
+        deleteValue(deleteCount);
+        console.log('Count', deleteCount);
+
+        // update list
         newData[section].data.splice(prevIndex, 1);
         setListData(newData);
     };
 
+    const deleteValue = async (deleteCount) => {
+
+        console.log('=== 正在刪除 count:' + deleteCount + ' ===');
+
+        let list_forDelete = await AsyncStorage.getItem('@Record');
+        list_forDelete = list_forDelete.split(",");
+
+        const removeType = list_forDelete[deleteCount + 1];
+        const removeValue = list_forDelete[deleteCount + 2];
+
+        console.log('removeType: ', removeType);
+        console.log('removeValue: ', removeValue);
+
+        // Get Storage Value
+        try {
+            let moneyLeft = await AsyncStorage.getItem('@Total');
+            let list_moneyNow = await AsyncStorage.getItem('@NowList');
+            let record_temp = await AsyncStorage.getItem('@Record');
+
+            record_temp = record_temp.split(",");
+
+            console.log('@Total: ', moneyLeft);
+            console.log('@NowList: ', list_moneyNow);
+            console.log('@Record: \n', record_temp);
+
+            record_temp.splice(deleteCount, 3);
+
+            if (removeType == "新增收入") moneyLeft = moneyLeft - parseInt(removeValue)
+            else if (removeType == "投資") list_moneyNow[0] = list_moneyNow[0] - parseInt(removeValue)
+            else if (removeType == "學習") list_moneyNow[1] = list_moneyNow[1] - parseInt(removeValue)
+            else if (removeType == "生活") list_moneyNow[2] = list_moneyNow[2] - parseInt(removeValue)
+            else if (removeType == "玩樂") list_moneyNow[3] = list_moneyNow[3] - parseInt(removeValue)
+            else if (removeType == "長線") list_moneyNow[4] = list_moneyNow[4] - parseInt(removeValue)
+            else if (removeType == "給予") list_moneyNow[5] = list_moneyNow[5] - parseInt(removeValue)
+
+            console.log('@Total: ', moneyLeft);
+            console.log('@NowList: ', list_moneyNow);
+            saveData(moneyLeft, list_moneyNow, record_temp);
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    // Save Value
+    const saveData = async (moneyLeft, list_moneyNow, record_temp) => {
+
+        console.log('=== 正在儲存 ===');
+
+        try {
+            let temp = moneyLeft + '';
+            let temp2 = list_moneyNow.toString();
+            let temp3 = record_temp.toString();
+
+            AsyncStorage.setItem('@Total', temp);
+            AsyncStorage.setItem('@NowList', temp2);
+            AsyncStorage.setItem('@Record', temp3);
+
+            console.log('@Total: ', moneyLeft);
+            console.log('@NowList: ', list_moneyNow);
+            console.log('@Record (Dele): \n', record_temp);
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const onRowDidOpen = rowKey => {
         console.log('This row opened', rowKey);
+
+        const [section] = rowKey.split('.');
+        const newData = [...listData];
+        const prevIndex = listData[section].data.findIndex(
+            item => item.key === rowKey
+        );
+
+        const deleteCount = newData[section].data[prevIndex].count;
+        console.log('count:', deleteCount);
     };
 
     const renderItem = data => (
@@ -185,7 +272,7 @@ const styles = StyleSheet.create({
     },
     rowFront: {
         alignItems: 'flex-start',
-        backgroundColor: '#BABABA',
+        backgroundColor: '#f5f5f5',
         justifyContent: 'center',
         height: 50,
         marginBottom: 5,
@@ -209,11 +296,11 @@ const styles = StyleSheet.create({
         width: 75,
     },
     backRightBtnLeft: {
-        backgroundColor: 'blue',
+        backgroundColor: '#88c1b8',
         right: 75,
     },
     backRightBtnRight: {
-        backgroundColor: 'red',
+        backgroundColor: '#ed7a5d',
         right: 0,
     },
 });
