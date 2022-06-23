@@ -16,6 +16,7 @@ import {
   Text,
   TextInput,
   Alert,
+  Linking,
 } from 'react-native';
 
 
@@ -57,6 +58,7 @@ const HomeScreen = ({ navigation }) => {
   let [leftTotalMoney, set_leftTotalMoney] = useState(0);
   let [list_nowMoney, set_list_nowMoney] = useState([0, 0, 0, 0, 0, 0]);
   let [list_progress, set_list_progress] = useState([0, 0, 0, 0, 0, 0]);
+  let [list_progress_origin, set_list_progress_origin] = useState([0, 0, 0, 0, 0, 0]);
   let [goalList, set_goalList] = useState([0, 0, 0, 0, 0, 0]);
 
   const getData = async () => {
@@ -104,7 +106,7 @@ const HomeScreen = ({ navigation }) => {
       Math.round(leftTotalMoney * (proportionList[5] * 0.01)), // 給予
     ];
 
-    list_progress = [
+    list_progress_origin = [
       (list_nowMoney[0] / goalList[0]) * 100,
       (list_nowMoney[1] / goalList[1]) * 100,
       (list_nowMoney[2] / goalList[2]) * 100,
@@ -113,10 +115,15 @@ const HomeScreen = ({ navigation }) => {
       (list_nowMoney[5] / goalList[5]) * 100,
     ];
 
+
+
     // check the Value of ProgressBar < 100
     for (let i = 0; i <= 5; i++) {
-      if (list_progress[i] > 100 || list_progress[i] < 0) list_progress[i] = 100;
-      else if (isNaN(list_progress[i])) list_progress[i] = 0;
+      if (list_progress_origin[i] > 100 || list_progress_origin[i] < 0) list_progress[i] = 100;
+      else if (isNaN(list_progress_origin[i])) {
+        list_progress[i] = 0;
+        list_progress_origin[i] = 0;
+      }
     }
 
     console.log('goalList: ', goalList);
@@ -126,6 +133,7 @@ const HomeScreen = ({ navigation }) => {
     set_list_nowMoney(list_nowMoney);
     set_list_progress(list_progress);
     set_goalList(goalList);
+    set_list_progress_origin(list_progress_origin);
   };
 
   const checkRemove = () => {
@@ -195,7 +203,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[0] / goalList[0]) * 100)}% ( {list_nowMoney[0]}元 )</Text>
+              <Text style={styles.label_now}>已使用 {list_progress_origin[0]}% ( {list_nowMoney[0]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[0] - list_nowMoney[0])} NTD.</Text>
             </View>
 
@@ -218,7 +226,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[1] / goalList[1]) * 100)}% ( {list_nowMoney[1]}元 )</Text>
+              <Text style={styles.label_now}>已使用 {list_progress_origin[1]}% ( {list_nowMoney[1]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{goalList[1] - list_nowMoney[1]} NTD.</Text>
             </View>
 
@@ -241,7 +249,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[2] / goalList[2]) * 100)}% ( {list_nowMoney[2]}元 )</Text>
+              <Text style={styles.label_now}>已使用 {list_progress_origin[2]}% ( {list_nowMoney[2]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[2] - list_nowMoney[2])} NTD.</Text>
             </View>
 
@@ -264,7 +272,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[3] / goalList[3]) * 100)}% ( {list_nowMoney[3]}元 )</Text>
+              <Text style={styles.label_now}>已使用 {list_progress_origin[3]}% ( {list_nowMoney[3]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[3] - list_nowMoney[3])} NTD.</Text>
             </View>
 
@@ -287,7 +295,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[4] / goalList[4]) * 100)}% ( {list_nowMoney[4]}元 )</Text>
+              <Text style={styles.label_now}>已使用 {list_progress_origin[4]}% ( {list_nowMoney[4]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[4] - list_nowMoney[4])} NTD.</Text>
             </View>
 
@@ -310,7 +318,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[5] / goalList[5]) * 100)}% ( {list_nowMoney[5]}元 )</Text>
+              <Text style={styles.label_now}>已使用 {list_progress_origin[5]}% ( {list_nowMoney[5]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[5] - list_nowMoney[5])} NTD.</Text>
             </View>
 
@@ -353,7 +361,7 @@ const NewRecordScreen = ({ route, navigation }) => {
 
   const [recordType, setrecordType] = useState('unchanged');
   const [number, onChangeNumber] = useState(null);
-  const [note, onChangeNote] = useState(null);
+  let [note, onChangeNote] = useState(null);
   let [btnColor, set_btnColor] = useState([ //背景顏色
     '#F5F5F5', // 新增收入
     '#F5F5F5', // 投資
@@ -401,6 +409,9 @@ const NewRecordScreen = ({ route, navigation }) => {
     else if (recordType == "玩樂") list_nowMoney[3] = list_nowMoney[3] + parseInt(number)
     else if (recordType == "長線") list_nowMoney[4] = list_nowMoney[4] + parseInt(number)
     else if (recordType == "給予") list_nowMoney[5] = list_nowMoney[5] + parseInt(number)
+
+    if (note == null) note = "：ｘ";
+    onChangeNote(note);
 
     saveData();
     //DEBUGgetData();
@@ -583,10 +594,19 @@ const NewRecordScreen = ({ route, navigation }) => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: 60, padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
+          style={{ backgroundColor: '#F5F5F5', width: '15%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
           onPress={() => navigation.navigate('Home')}
         >
           <Image source={require('./common/cross.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 0 }} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.box_button}>
+        <TouchableOpacity
+          style={{ backgroundColor: '#F5F5F5', width: '93%', padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
+          onPress={() => Linking.openURL('https://hackmd.io/@miffy2022/SJbsjMG59')}
+        >
+          <Text>查看隱私權政策</Text>
         </TouchableOpacity>
       </View>
 
@@ -715,7 +735,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
   },
-  
+
   // Inputs
   input_money: {
     width: '75%',

@@ -123,8 +123,10 @@ export default function SectionList() {
 
         // update storage value
         const deleteCount = newData[section].data[prevIndex].count;
-        deleteValue(deleteCount);
-        console.log('Count', deleteCount);
+        if (deleteCount != undefined) {
+            deleteValue(deleteCount);
+            console.log('Count', deleteCount);
+        }
 
         // update list
         newData[section].data.splice(prevIndex, 1);
@@ -133,7 +135,7 @@ export default function SectionList() {
 
     const deleteValue = async (deleteCount) => {
 
-        console.log('=== 正在刪除 count:' + deleteCount + ' ===');
+        console.log('=== 正在搜尋 count:' + deleteCount + ' ===');
 
         let list_forDelete = await AsyncStorage.getItem('@Record');
         list_forDelete = list_forDelete.split(",");
@@ -146,29 +148,32 @@ export default function SectionList() {
 
         // Get Storage Value
         try {
-            let moneyLeft = await AsyncStorage.getItem('@Total');
-            let list_moneyNow = await AsyncStorage.getItem('@NowList');
-            let record_temp = await AsyncStorage.getItem('@Record');
+            console.log('=== 刪除中... ===');
 
-            record_temp = record_temp.split(",");
+            let moneyLeft = await AsyncStorage.getItem('@Total');
+            let moneyNow_string = await AsyncStorage.getItem('@NowList');
+            let record_string = await AsyncStorage.getItem('@Record');
+
+            let record_list = record_string.split(",");
+            let moneyNow_list = moneyNow_string.split(",");
 
             console.log('@Total: ', moneyLeft);
-            console.log('@NowList: ', list_moneyNow);
-            console.log('@Record: \n', record_temp);
+            console.log('@NowList: ', moneyNow_list);
+            console.log('@Record: \n', record_list);
 
-            record_temp.splice(deleteCount, 4);
+            record_list.splice(deleteCount, 4);
 
             if (removeType == "新增收入") moneyLeft = moneyLeft - parseInt(removeValue)
-            else if (removeType == "投資") list_moneyNow[0] = list_moneyNow[0] - parseInt(removeValue)
-            else if (removeType == "學習") list_moneyNow[1] = list_moneyNow[1] - parseInt(removeValue)
-            else if (removeType == "生活") list_moneyNow[2] = list_moneyNow[2] - parseInt(removeValue)
-            else if (removeType == "玩樂") list_moneyNow[3] = list_moneyNow[3] - parseInt(removeValue)
-            else if (removeType == "長線") list_moneyNow[4] = list_moneyNow[4] - parseInt(removeValue)
-            else if (removeType == "給予") list_moneyNow[5] = list_moneyNow[5] - parseInt(removeValue)
+            else if (removeType == "投資") moneyNow_list[0] = moneyNow_list[0] - parseInt(removeValue)
+            else if (removeType == "學習") moneyNow_list[1] = moneyNow_list[1] - parseInt(removeValue)
+            else if (removeType == "生活") moneyNow_list[2] = moneyNow_list[2] - parseInt(removeValue)
+            else if (removeType == "玩樂") moneyNow_list[3] = moneyNow_list[3] - parseInt(removeValue)
+            else if (removeType == "長線") moneyNow_list[4] = moneyNow_list[4] - parseInt(removeValue)
+            else if (removeType == "給予") moneyNow_list[5] = moneyNow_list[5] - parseInt(removeValue)
 
             console.log('@Total: ', moneyLeft);
-            console.log('@NowList: ', list_moneyNow);
-            saveData(moneyLeft, list_moneyNow, record_temp);
+            console.log('@NowList: ', moneyNow_list);
+            saveData(moneyLeft, moneyNow_list, record_list);
 
         } catch (error) {
             console.log(error);
@@ -176,22 +181,22 @@ export default function SectionList() {
     };
 
     // Save Value
-    const saveData = async (moneyLeft, list_moneyNow, record_temp) => {
+    const saveData = async (moneyLeft, moneyNow_list, record_list) => {
 
         console.log('=== 正在儲存 ===');
 
         try {
             let temp = moneyLeft + '';
-            let temp2 = list_moneyNow.toString();
-            let temp3 = record_temp.toString();
+            let temp2 = moneyNow_list.toString();
+            let temp3 = record_list.toString();
 
             AsyncStorage.setItem('@Total', temp);
             AsyncStorage.setItem('@NowList', temp2);
             AsyncStorage.setItem('@Record', temp3);
 
             console.log('@Total: ', moneyLeft);
-            console.log('@NowList: ', list_moneyNow);
-            console.log('@Record (Dele): \n', record_temp);
+            console.log('@NowList: ', moneyNow_list);
+            console.log('@Record (Dele): \n', record_list);
 
         } catch (error) {
             console.log(error);
@@ -207,8 +212,8 @@ export default function SectionList() {
             item => item.key === rowKey
         );
 
-        const deleteCount = newData[section].data[prevIndex].count;
-        console.log('count:', deleteCount);
+        const openCount = newData[section].data[prevIndex].count;
+        console.log('count:', openCount);
     };
 
     const renderItem = data => (
