@@ -182,7 +182,7 @@ const HomeScreen = ({ navigation }) => {
 
             <View style={styles.box_title}>
               <Text style={styles.label_title}>▌投資 ({proportionList[0]}%)</Text>
-              <Text style={styles.label_goal}>/ {goalList[0]} NTD.</Text>
+              <Text style={styles.label_goal}>| 預算 {goalList[0]}$ ( 用了 {list_nowMoney[0]}$ )</Text>
             </View>
 
             <ProgressBarAnimated
@@ -195,7 +195,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {list_nowMoney[0]} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[0] / goalList[0]) * 100)}%</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[0] - list_nowMoney[0])} NTD.</Text>
             </View>
 
@@ -205,7 +205,7 @@ const HomeScreen = ({ navigation }) => {
 
             <View style={styles.box_title}>
               <Text style={styles.label_title}>▌學習 ({proportionList[1]}%)</Text>
-              <Text style={styles.label_goal}>/ {goalList[1]} NTD.</Text>
+              <Text style={styles.label_goal}>| 預算 {goalList[1]} NTD.</Text>
             </View>
 
             <ProgressBarAnimated
@@ -218,7 +218,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {list_nowMoney[1]} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[1] / goalList[1]) * 100)}% ( {list_nowMoney[1]} NTD. )</Text>
               <Text style={styles.label_howMuchToGoal}>{goalList[1] - list_nowMoney[1]} NTD.</Text>
             </View>
 
@@ -228,7 +228,7 @@ const HomeScreen = ({ navigation }) => {
 
             <View style={styles.box_title}>
               <Text style={styles.label_title}>▌生活 ({proportionList[2]}%)</Text>
-              <Text style={styles.label_goal}>/ {goalList[2]} NTD.</Text>
+              <Text style={styles.label_goal}>| 預算 {goalList[2]} NTD.</Text>
             </View>
 
             <ProgressBarAnimated
@@ -251,7 +251,7 @@ const HomeScreen = ({ navigation }) => {
 
             <View style={styles.box_title}>
               <Text style={styles.label_title}>▌玩樂 ({proportionList[3]}%)</Text>
-              <Text style={styles.label_goal}>/ {goalList[3]} NTD.</Text>
+              <Text style={styles.label_goal}>| 預算 {goalList[3]} NTD.</Text>
             </View>
 
             <ProgressBarAnimated
@@ -264,7 +264,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {list_nowMoney[3]} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {list_nowMoney[3]} NTD. ({Math.round((list_nowMoney[3] / goalList[3]) * 100)} %)</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[3] - list_nowMoney[3])} NTD.</Text>
             </View>
 
@@ -274,7 +274,7 @@ const HomeScreen = ({ navigation }) => {
 
             <View style={styles.box_title}>
               <Text style={styles.label_title}>▌長線 ({proportionList[4]}%)</Text>
-              <Text style={styles.label_goal}>/ {goalList[4]} NTD.</Text>
+              <Text style={styles.label_goal}>| 預算 {goalList[4]} NTD.</Text>
             </View>
 
             <ProgressBarAnimated
@@ -287,7 +287,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {list_nowMoney[4]} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {list_nowMoney[4]} NTD. ({Math.round((list_nowMoney[4] / goalList[4]) * 100)} %)</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[4] - list_nowMoney[4])} NTD.</Text>
             </View>
 
@@ -297,7 +297,7 @@ const HomeScreen = ({ navigation }) => {
 
             <View style={styles.box_title}>
               <Text style={styles.label_title}>▌給予 ({proportionList[5]}%)</Text>
-              <Text style={styles.label_goal}>/ {goalList[5]} NTD.</Text>
+              <Text style={styles.label_goal}>| 預算 {goalList[5]} NTD.</Text>
             </View>
 
             <ProgressBarAnimated
@@ -310,7 +310,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {list_nowMoney[5]} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {list_nowMoney[5]} NTD. ({Math.round((list_nowMoney[5] / goalList[5]) * 100)} %)</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[5] - list_nowMoney[5])} NTD.</Text>
             </View>
 
@@ -328,7 +328,7 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: 60, alignItems: "center", borderRadius: 10, }}
+          style={{ backgroundColor: '#F5F5F5', width: 60, alignItems: "center", borderRadius: 10, marginRight: 10 }}
           onPress={() => navigation.navigate('Setting')}
         >
           <Image source={require('./common/list.png')} resizeMode='center' style={{ maxHeight: 20, marginTop: 15, }} />
@@ -573,7 +573,7 @@ const NewRecordScreen = ({ route, navigation }) => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ backgroundColor: '#F5F5F5', width: '20%', padding: 15, alignItems: "center", borderRadius: 10, }}
+          style={{ backgroundColor: '#F5F5F5', width: 60, padding: 15, alignItems: "center", borderRadius: 10, marginRight: 10 }}
           onPress={() => navigation.navigate('Home')}
         >
           <Image source={require('./common/cross.png')} resizeMode='center' style={{ maxHeight: 20, zIndex: 0 }} />
@@ -674,6 +674,7 @@ const styles = StyleSheet.create({
   },
   box_button: {
     marginBottom: 10,
+    paddingLeft: 15,
     flexDirection: 'row',
     maxHeight: 50,
   },
