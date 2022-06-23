@@ -181,8 +181,8 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.box_progressInfo}>
 
             <View style={styles.box_title}>
-              <Text style={styles.label_title}>▌投資 ({proportionList[0]}%)</Text>
-              <Text style={styles.label_goal}>| 預算 {goalList[0]}$ ( 用了 {list_nowMoney[0]}$ )</Text>
+              <Text style={styles.label_title}>▌投資 {proportionList[0]}%</Text>
+              <Text style={styles.label_goal}>| 預算 {goalList[0]} NTD.</Text>
             </View>
 
             <ProgressBarAnimated
@@ -195,7 +195,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[0] / goalList[0]) * 100)}%</Text>
+              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[0] / goalList[0]) * 100)}% ( {list_nowMoney[0]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[0] - list_nowMoney[0])} NTD.</Text>
             </View>
 
@@ -204,7 +204,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.box_progressInfo}>
 
             <View style={styles.box_title}>
-              <Text style={styles.label_title}>▌學習 ({proportionList[1]}%)</Text>
+              <Text style={styles.label_title}>▌學習 {proportionList[1]}%</Text>
               <Text style={styles.label_goal}>| 預算 {goalList[1]} NTD.</Text>
             </View>
 
@@ -218,7 +218,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[1] / goalList[1]) * 100)}% ( {list_nowMoney[1]} NTD. )</Text>
+              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[1] / goalList[1]) * 100)}% ( {list_nowMoney[1]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{goalList[1] - list_nowMoney[1]} NTD.</Text>
             </View>
 
@@ -227,7 +227,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.box_progressInfo}>
 
             <View style={styles.box_title}>
-              <Text style={styles.label_title}>▌生活 ({proportionList[2]}%)</Text>
+              <Text style={styles.label_title}>▌生活 {proportionList[2]}%</Text>
               <Text style={styles.label_goal}>| 預算 {goalList[2]} NTD.</Text>
             </View>
 
@@ -241,7 +241,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {list_nowMoney[2]} NTD.</Text>
+              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[2] / goalList[2]) * 100)}% ( {list_nowMoney[2]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[2] - list_nowMoney[2])} NTD.</Text>
             </View>
 
@@ -250,7 +250,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.box_progressInfo}>
 
             <View style={styles.box_title}>
-              <Text style={styles.label_title}>▌玩樂 ({proportionList[3]}%)</Text>
+              <Text style={styles.label_title}>▌玩樂 {proportionList[3]}%</Text>
               <Text style={styles.label_goal}>| 預算 {goalList[3]} NTD.</Text>
             </View>
 
@@ -264,7 +264,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {list_nowMoney[3]} NTD. ({Math.round((list_nowMoney[3] / goalList[3]) * 100)} %)</Text>
+              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[3] / goalList[3]) * 100)}% ( {list_nowMoney[3]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[3] - list_nowMoney[3])} NTD.</Text>
             </View>
 
@@ -273,7 +273,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.box_progressInfo}>
 
             <View style={styles.box_title}>
-              <Text style={styles.label_title}>▌長線 ({proportionList[4]}%)</Text>
+              <Text style={styles.label_title}>▌長線 {proportionList[4]}%</Text>
               <Text style={styles.label_goal}>| 預算 {goalList[4]} NTD.</Text>
             </View>
 
@@ -287,7 +287,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {list_nowMoney[4]} NTD. ({Math.round((list_nowMoney[4] / goalList[4]) * 100)} %)</Text>
+              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[4] / goalList[4]) * 100)}% ( {list_nowMoney[4]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[4] - list_nowMoney[4])} NTD.</Text>
             </View>
 
@@ -296,7 +296,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.box_progressInfo}>
 
             <View style={styles.box_title}>
-              <Text style={styles.label_title}>▌給予 ({proportionList[5]}%)</Text>
+              <Text style={styles.label_title}>▌給予 {proportionList[5]}%</Text>
               <Text style={styles.label_goal}>| 預算 {goalList[5]} NTD.</Text>
             </View>
 
@@ -310,7 +310,7 @@ const HomeScreen = ({ navigation }) => {
               backgroundColor="#28DBB0" />
 
             <View style={styles.box_subTitle}>
-              <Text style={styles.label_now}>已使用 {list_nowMoney[5]} NTD. ({Math.round((list_nowMoney[5] / goalList[5]) * 100)} %)</Text>
+              <Text style={styles.label_now}>已使用 {Math.round((list_nowMoney[5] / goalList[5]) * 100)}% ( {list_nowMoney[5]}元 )</Text>
               <Text style={styles.label_howMuchToGoal}>{Math.round(goalList[5] - list_nowMoney[5])} NTD.</Text>
             </View>
 
@@ -353,6 +353,7 @@ const NewRecordScreen = ({ route, navigation }) => {
 
   const [recordType, setrecordType] = useState('unchanged');
   const [number, onChangeNumber] = useState(null);
+  const [note, onChangeNote] = useState(null);
   let [btnColor, set_btnColor] = useState([ //背景顏色
     '#F5F5F5', // 新增收入
     '#F5F5F5', // 投資
@@ -419,13 +420,14 @@ const NewRecordScreen = ({ route, navigation }) => {
       let temp3 = await AsyncStorage.getItem('@Record');
       console.log('@Record', temp3);
 
-      if (temp3 == null) temp3 = [getCurrentDate(), recordType, number];
+      if (temp3 == null) temp3 = [getCurrentDate(), recordType, number, note];
       else {
         temp3 = temp3.split(",");
 
         temp3.push(getCurrentDate());
         temp3.push(recordType);
         temp3.push(number);
+        temp3.push(note);
       }
       temp3 = temp3.toString();
       AsyncStorage.setItem('@Record', temp3);
@@ -550,12 +552,20 @@ const NewRecordScreen = ({ route, navigation }) => {
 
 
       <TextInput
-        style={styles.label_input}
+        style={styles.input_money}
         onChangeText={onChangeNumber}
         value={number}
         placeholder="點這裡輸入金額"
         keyboardType="numeric"
         required
+      />
+
+      <TextInput
+        style={styles.input_note}
+        onChangeText={onChangeNote}
+        value={note}
+        placeholder="輸入備註... (打工、咖哩飯...)"
+        keyboardType="default"
       />
 
 
@@ -631,7 +641,6 @@ const styles = StyleSheet.create({
     paddingTop: StatusBar.currentHeight,
   },
   scrollView: {
-    paddingTop: 10,
     paddingLeft: 15,
     paddingRight: 15,
   },
@@ -706,11 +715,26 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
   },
-  label_input: {
+  
+  // Inputs
+  input_money: {
+    width: '75%',
+    height: 60,
     color: '#28DBB0',
     fontWeight: 'bold',
-    fontSize: 35,
+    fontSize: 30,
     textAlign: 'center',
+    borderLeftWidth: 3,
+  },
+  input_note: {
+    marginTop: 40,
+    height: 40,
+    width: '75%',
+    color: '#BABABA',
+    fontWeight: 'bold',
+    fontSize: 20,
+    textAlign: 'center',
+    borderLeftWidth: 3,
   },
 });
 

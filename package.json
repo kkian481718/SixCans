@@ -29,7 +29,8 @@
     "react-native-web": "0.17.7",
     "react-navigation": "^4.4.4",
     "webpack-dev-server": "~3.11.0",
-    "@expo/webpack-config": "~0.16.2"
+    "@expo/webpack-config": "~0.16.2",
+    "expo-updates": "~0.13.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

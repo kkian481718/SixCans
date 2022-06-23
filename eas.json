@@ -13,6 +13,10 @@
     "production": {}
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "C:/Users/kkian/Downloads/SixCans/pc-api-8563852841045141796-107-34c1c311ca63.json"
+      }
+    }
   }
 }

@@ -47,25 +47,25 @@ export default function SectionList() {
                 let listData_temp = [
                     {
                         "key": "0.0",
-                        "text": listData[1] + `/ ` + listData[2] + ' NTD.',
+                        "text": listData[1] + ` | ` + listData[2] + ' NTD. |  ' + listData[3],
                         "count": 0
                     }
                 ];
 
                 let [i, j] = [0, 0];
-                for (let count = 3; count <= (listData.length); count = count + 3) {
+                for (let count = 4; count <= (listData.length); count = count + 4) {
 
                     console.log('----count: ', count);
                     console.log('----i: ', i);
                     console.log('----j: ', j);
 
-                    if (listData[count] == listData[count - 3]) {
+                    if (listData[count] == listData[count - 4]) {
                         // add !
                         j++;
                         listData_temp.push(
                             {
                                 "key": i + '.' + j,
-                                "text": listData[count + 1] + `/ ` + listData[count + 2] + ' NTD.',
+                                "text": listData[count + 1] + ` | ` + listData[count + 2] + ' NTD. |  ' + listData[count + 3],
                                 "count": count
                             }
                         );
@@ -89,7 +89,7 @@ export default function SectionList() {
                         listData_temp = [
                             {
                                 "key": i + ".0",
-                                "text": listData[count + 1] + `/ ` + listData[count + 2] + ' NTD.',
+                                "text": listData[count + 1] + ` | ` + listData[count + 2] + ' NTD. |  ' + listData[count + 3],
                                 "count": count
                             }
                         ];
@@ -156,7 +156,7 @@ export default function SectionList() {
             console.log('@NowList: ', list_moneyNow);
             console.log('@Record: \n', record_temp);
 
-            record_temp.splice(deleteCount, 3);
+            record_temp.splice(deleteCount, 4);
 
             if (removeType == "新增收入") moneyLeft = moneyLeft - parseInt(removeValue)
             else if (removeType == "投資") list_moneyNow[0] = list_moneyNow[0] - parseInt(removeValue)
