@@ -2,7 +2,7 @@
   "expo": {
     "name": "Six Cans",
     "slug": "sixCans",
-    "version": "1.0.4",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -21,7 +21,7 @@
     },
     "android": {
       "package": "com.sixcans",
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -29,6 +29,8 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
-  }
+    },
+    "sdkVersion": "45.0.0"
+  },
+  "name": "awesomeproject"
 }

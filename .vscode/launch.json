@@ -1,0 +1,13 @@
+// 教學：https://blog.logrocket.com/debugging-react-native-vs-code/
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Android",
+            "request": "launch",
+            "type": "reactnative",
+            "cwd": "${workspaceFolder}",
+            "platform": "android"
+        }
+    ]
+}
