@@ -5,6 +5,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import HomeScreen from './src/HomeScreen'
 import NewRecordScreen from './src/NewRecordScreen'
 import RecordScreen from './src/RecordScreen'
+import DetailScreen from './src/DetailScreen'
+import BarChartScreen from './src/BarChartScreen'
 
 
 // [Pages Navigator]
@@ -18,7 +20,17 @@ const MyStack = () => {
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={() => ({ headerShown: false })}
+          options={() => ({ headerShown: false, animation: 'slide_from_right' })}
+        />
+        <Stack.Screen
+          name="Detail"
+          component={DetailScreen}
+          options={() => ({ headerShown: false, animation: 'slide_from_right' })}
+        />
+        <Stack.Screen
+          name="BarChart"
+          component={BarChartScreen}
+          options={() => ({ headerShown: false, animation: 'slide_from_right' })}
         />
         <Stack.Screen
           name="NewRecord"
