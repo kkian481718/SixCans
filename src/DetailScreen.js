@@ -10,7 +10,6 @@ import {
   Image,
   Text,
   Alert,
-  StatusBar,
 } from 'react-native'
 
 
@@ -150,10 +149,7 @@ export default function HomeScreen({ route, navigation }) {
   
 
     return (
-
       <View style={styles.backgroundView}>
-
-        <StatusBar backgroundColor="#A9A598" />
   
         <TouchableOpacity style={styles.box_top} onPress={checkRemove}>
           <Text style={styles.label_leftMoney}>{leftTotalMoney} NTD.</Text>
@@ -308,14 +304,14 @@ export default function HomeScreen({ route, navigation }) {
   
         <View style={styles.box_button}>
           <TouchableOpacity
-            style={{ backgroundColor: '#F5F5F5', width: '75%', alignItems: "center", borderRadius: 10, height: 53, }}
+            style={{ backgroundColor: '#F5F5F5', width: '75%', alignItems: "center", borderRadius: 10, marginRight: 10 }}
             onPress={() => navigation.navigate('NewRecord', { leftTotalMoney: leftTotalMoney, list_nowMoney: list_nowMoney })}
           >
             <Image source={require('../common/plus.png')} resizeMode='center' style={{ maxHeight: 20, marginTop: 15, }} />
           </TouchableOpacity>
   
           <TouchableOpacity
-            style={{ backgroundColor: '#F5F5F5', width: 60, alignItems: "center", borderRadius: 10, height: 53, }}
+            style={{ backgroundColor: '#F5F5F5', width: 60, alignItems: "center", borderRadius: 10, marginRight: 10 }}
             onPress={() => navigation.navigate("Record")}
           >
             <Image source={require('../common/list.png')} resizeMode='center' style={{ maxHeight: 20, marginTop: 15, }} />
@@ -332,9 +328,9 @@ export default function HomeScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   backgroundView: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.87)',
+    backgroundColor: '#fff',
     flex: 1,
-    paddingTop: 43,
+    paddingTop: 10,
   },
   scrollView: {
     paddingLeft: 15,
@@ -348,7 +344,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', // horizontal
     height: 100,
     width: '90%',
-    backgroundColor: '#F7F8DF',
+    backgroundColor: '#88c1b8',
     borderRadius: 15,
   },
   box_progressInfo: {
@@ -370,17 +366,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   box_button: {
-    paddingTop: 15,
-    paddingBottom: 15,
+    marginBottom: 10,
+    paddingLeft: 15,
     flexDirection: 'row',
-    backgroundColor: '#A9A598',
-    Height: 85,
-    Width: '100%',
+    maxHeight: 50,
   },
 
   // Labels
   label_leftMoney: {
-    color: '#202020',
+    color: 'white',
     fontWeight: 'bold',
     fontSize: 35,
     alignItems: 'center',

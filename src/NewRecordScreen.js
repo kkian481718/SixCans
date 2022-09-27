@@ -16,9 +16,9 @@ import {
 
 
 // [New Record Screen]
-export default function NewRecordScreen( {route, navigation} ) {
+export default function NewRecordScreen({ route, navigation }) {
 
-    console.log('\n[Open] New Record Screen');
+    console.log('[Open] New Record Screen');
   
     // get parms from HomeScreen
     let { leftTotalMoney, list_nowMoney } = route.params;
@@ -148,8 +148,7 @@ export default function NewRecordScreen( {route, navigation} ) {
         temp3 = temp3.toString();
         AsyncStorage.setItem('@Record', temp3);
         console.log('@Record (added)\n', temp3);
-  
-        REFRESH_HOME = 'DO';
+        
         navigation.navigate('Home', {})
   
       } catch (error) {
@@ -278,4 +277,81 @@ export default function NewRecordScreen( {route, navigation} ) {
   
       </SafeAreaView>
     );
-}
+};
+
+// [Styling]
+const styles = StyleSheet.create({
+  backgroundView: {
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    flex: 1,
+    paddingTop: 10,
+  },
+  scrollView: {
+    paddingLeft: 15,
+    paddingRight: 15,
+  },
+
+  // Boxes
+  box_top: {
+    marginBottom: 15,
+    justifyContent: 'center', // vertical
+    alignItems: 'center', // horizontal
+    height: 100,
+    width: '90%',
+    backgroundColor: '#88c1b8',
+    borderRadius: 15,
+  },
+  box_progressInfo: {
+    paddingBottom: 25,
+  },
+  box_title: {
+    marginBottom: 15,
+    padding: 10,
+    width: 'auto',
+    backgroundColor: 'rgba(211,196,167, 0.2)',
+    borderRadius: 30,
+  },
+  box_subTitle: {
+    marginLeft: 10,
+    marginRight: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    maxWidth: '100%',
+    alignItems: 'flex-end',
+  },
+  box_button: {
+    marginBottom: 10,
+    paddingLeft: 15,
+    flexDirection: 'row',
+    maxHeight: 50,
+  },
+
+  // Labels
+  label_leftMoney: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 35,
+    alignItems: 'center',
+  },
+  label_title: {
+    color: 'rgba(211,196,167, 1)',
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginRight: 10,
+    marginEnd: 10,
+  },
+  label_goal: {
+    color: '#BABABA',
+    fontSize: 14,
+  },
+  label_now: {
+    color: '#BABABA',
+    fontSize: 14,
+  },
+  label_howMuchToGoal: {
+    color: '#88c1b8',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+});
